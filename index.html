@@ -1,0 +1,2582 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>بوابة دفعة الذكاء الاصطناعي | المستوى الأول</title>
+
+  <!-- خطوط عربية واضحة وعصرية -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy-950: #0b1324;
+      --navy-900: #0f172a;
+      --navy-800: #1e293b;
+      --primary: #1d4ed8;
+      --primary-dark: #1e40af;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      --accent: #0284c7;
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-light: #64748b;
+      --border: #e2e8f0;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --warning: #b45309;
+      --warning-bg: #fffbeb;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.07);
+      --shadow-lg: 0 12px 30px rgba(15, 23, 42, 0.14);
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Cairo', 'Tajawal', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.65;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* الحاوية الرئيسية */
+    .container {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* الرأس (Header) */
+    .app-header {
+      background: linear-gradient(135deg, var(--navy-950) 0%, var(--navy-900) 55%, #172554 100%);
+      color: #ffffff;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.18);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    }
+
+    .brand-text h1 {
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-text p {
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .nav-pills-desktop {
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-pill {
+      padding: 7px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.08);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .nav-pill:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: #ffffff;
+    }
+
+    /* تنقل الجوال السريع */
+    .mobile-quick-nav {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: #ffffff;
+      padding: 8px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mobile-quick-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px;
+      border-radius: 9px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--navy-800);
+      background: var(--bg-page);
+      transition: all 0.2s;
+    }
+
+    .mobile-quick-btn.active,
+    .mobile-quick-btn:active {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    /* المحتوى الرئيسي */
+    main {
+      flex: 1;
+      padding: 18px 0 40px;
+    }
+
+    /* شريط التنبيه العاجل */
+    .urgent-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 1px solid #fcd34d;
+      border-right: 5px solid #d97706;
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-sm);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .urgent-banner.hidden {
+      display: none;
+    }
+
+    .urgent-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: #f59e0b;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .urgent-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .urgent-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #92400e;
+      background: rgba(245, 158, 11, 0.2);
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-bottom: 4px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #dc2626;
+      animation: pulse 1.6s infinite;
+    }
+
+    .urgent-text {
+      font-size: 0.94rem;
+      font-weight: 600;
+      color: #78350f;
+      word-wrap: break-word;
+    }
+
+    /* رؤوس الأقسام */
+    .section-block {
+      margin-bottom: 30px;
+      scroll-margin-top: 76px;
+    }
+
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .section-title h2 {
+      font-size: 1.18rem;
+      font-weight: 800;
+      color: var(--navy-900);
+    }
+
+    .section-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+
+    /* الأزرار */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      min-height: 40px;
+      white-space: nowrap;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-dark);
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      color: var(--navy-800);
+      border-color: var(--border);
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      background: var(--bg-page);
+      border-color: #cbd5e1;
+    }
+
+    .btn-soft {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .btn-soft:hover:not(:disabled) {
+      background: #dbeafe;
+    }
+
+    .btn-danger-soft {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .btn-danger-soft:hover:not(:disabled) {
+      background: #fee2e2;
+    }
+
+    .btn-sm {
+      padding: 6px 11px;
+      font-size: 0.8rem;
+      min-height: 34px;
+      border-radius: 8px;
+    }
+
+    /* شريط البحث ومعلومات التحديث */
+    .archive-toolbar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-box svg {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 42px 12px 38px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      font-size: 0.94rem;
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+    }
+
+    .clear-search-btn {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #f1f5f9;
+      border: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    .clear-search-btn.visible {
+      display: flex;
+    }
+
+    .cache-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--text-light);
+    }
+
+    /* شبكة بطاقات المواد */
+    .courses-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .course-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .course-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-border);
+    }
+
+    .course-card:active {
+      transform: scale(0.99);
+    }
+
+    .course-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-weight: 800;
+    }
+
+    .course-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .course-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--navy-900);
+      margin-bottom: 4px;
+      word-wrap: break-word;
+    }
+
+    .course-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+
+    .badge-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.76rem;
+    }
+
+    .course-arrow {
+      color: var(--text-light);
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+
+    .course-card:hover .course-arrow {
+      transform: translateX(-3px);
+      color: var(--primary);
+    }
+
+    /* نتائج البحث المباشر في الملفات */
+    .search-files-box {
+      margin-top: 16px;
+      background: #ffffff;
+      border: 1px solid var(--primary-border);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search-files-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* شاشة التحميل Skeleton */
+    .skeleton-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .skeleton-box {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.3s infinite;
+      border-radius: 10px;
+    }
+
+    .skeleton-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      flex-shrink: 0;
+    }
+
+    .skeleton-lines {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .skeleton-line-lg {
+      height: 16px;
+      width: 68%;
+    }
+
+    .skeleton-line-sm {
+      height: 12px;
+      width: 42%;
+    }
+
+    /* قائمة الملفات */
+    .files-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .file-item {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 13px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.18s;
+    }
+
+    .file-item:hover {
+      border-color: #cbd5e1;
+    }
+
+    .file-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+    }
+
+    .file-type-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+
+    .file-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .file-name {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      word-break: break-word;
+      line-height: 1.45;
+    }
+
+    .file-meta {
+      font-size: 0.77rem;
+      color: var(--text-light);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .file-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .file-action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 8px 8px;
+      border-radius: 8px;
+      font-size: 0.79rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--bg-page);
+      color: var(--navy-800);
+      cursor: pointer;
+      transition: all 0.16s;
+      min-height: 36px;
+      text-align: center;
+    }
+
+    .file-action-btn.preview {
+      background: var(--primary-light);
+      border-color: var(--primary-border);
+      color: var(--primary-dark);
+    }
+
+    .file-action-btn.preview:hover {
+      background: #dbeafe;
+    }
+
+    .file-action-btn.download {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+      color: #065f46;
+    }
+
+    .file-action-btn.download:hover {
+      background: #d1fae5;
+    }
+
+    .file-action-btn.copy:hover {
+      background: #e2e8f0;
+    }
+
+    /* الجدول الأسبوعي */
+    .schedule-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .days-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+      scrollbar-width: none;
+    }
+
+    .days-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .day-tab {
+      flex: 0 0 auto;
+      padding: 8px 15px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-page);
+      color: var(--text-muted);
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.18s;
+    }
+
+    .day-tab.active {
+      background: var(--navy-900);
+      color: #ffffff;
+      border-color: var(--navy-900);
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.15);
+    }
+
+    .today-chip {
+      font-size: 0.68rem;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: #2563eb;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .day-tab:not(.active) .today-chip {
+      background: #dbeafe;
+      color: var(--primary-dark);
+    }
+
+    .lectures-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .lecture-item {
+      border: 1px solid var(--border);
+      border-right: 4px solid var(--primary);
+      border-radius: var(--radius-md);
+      padding: 13px 14px;
+      background: var(--bg-page);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .lecture-subject {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: var(--navy-900);
+    }
+
+    .lecture-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .lecture-detail {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .lecture-detail svg {
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    /* حالة فارغة / خطأ */
+    .empty-state {
+      text-align: center;
+      padding: 34px 16px;
+      background: #ffffff;
+      border: 1px dashed #cbd5e1;
+      border-radius: var(--radius-lg);
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      color: #94a3b8;
+      margin-bottom: 10px;
+    }
+
+    .empty-state h3 {
+      font-size: 1rem;
+      color: var(--navy-900);
+      margin-bottom: 4px;
+    }
+
+    .empty-state p {
+      font-size: 0.85rem;
+      margin-bottom: 14px;
+    }
+
+    /* التذييل (Footer) */
+    .app-footer {
+      background: var(--navy-900);
+      color: #cbd5e1;
+      padding: 18px 0;
+      margin-top: auto;
+      font-size: 0.82rem;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .admin-lock-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #cbd5e1;
+      padding: 7px 12px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .admin-lock-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+    }
+
+    /* النوافذ المنبثقة (Modals) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.62);
+      backdrop-filter: blur(3px);
+      z-index: 80;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-dialog {
+      background: #ffffff;
+      width: 100%;
+      max-width: 780px;
+      max-height: 92vh;
+      border-radius: 20px 20px 0 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.22s ease;
+    }
+
+    .modal-dialog.modal-sm {
+      max-width: 420px;
+    }
+
+    .modal-dialog.modal-full {
+      max-width: 960px;
+      height: 90vh;
+    }
+
+    .modal-header {
+      padding: 15px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .modal-title {
+      font-size: 1.04rem;
+      font-weight: 800;
+      color: var(--navy-900);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .modal-close-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--bg-page);
+      color: var(--navy-800);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .modal-close-btn:hover {
+      background: #e2e8f0;
+    }
+
+    .modal-body {
+      padding: 16px 18px 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-body.no-pad {
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* تبويبات أقسام المادة */
+    .section-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      scrollbar-width: none;
+    }
+
+    .section-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .section-tab-btn {
+      flex: 0 0 auto;
+      padding: 8px 14px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--bg-page);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .preview-iframe {
+      width: 100%;
+      flex: 1;
+      border: none;
+      background: #f1f5f9;
+    }
+
+    /* نماذج الإدخال في لوحة التحكم */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--navy-800);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      background: #ffffff;
+      color: var(--text-main);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+
+    .admin-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      overflow-x: auto;
+    }
+
+    .admin-tab-btn {
+      flex: 0 0 auto;
+      padding: 8px 13px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--bg-page);
+      color: var(--text-muted);
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .admin-tab-btn.active {
+      background: var(--navy-900);
+      color: #ffffff;
+      border-color: var(--navy-900);
+    }
+
+    .admin-lecture-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
+    .code-box {
+      background: var(--navy-900);
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      font-family: monospace;
+      font-size: 0.78rem;
+      direction: ltr;
+      text-align: left;
+      max-height: 180px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin-bottom: 10px;
+    }
+
+    /* إشعار Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 120;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      width: calc(100% - 32px);
+      max-width: 360px;
+    }
+
+    .toast {
+      background: var(--navy-900);
+      color: #ffffff;
+      padding: 11px 16px;
+      border-radius: 12px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      animation: fadeUp 0.22s ease;
+    }
+
+    .toast.success {
+      background: #065f46;
+    }
+
+    .toast.error {
+      background: #991b1b;
+    }
+
+    /* أيقونة التدوير أثناء التحديث */
+    .spin {
+      animation: spin 0.9s linear infinite;
+    }
+
+    /* تجاوب الشاشات المتوسطة والكبيرة */
+    @media (min-width: 640px) {
+      .courses-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .archive-toolbar {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .file-item {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .file-actions {
+        display: flex;
+        flex-shrink: 0;
+      }
+
+      .form-grid-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .modal-backdrop {
+        align-items: center;
+        padding: 20px;
+      }
+
+      .modal-dialog {
+        border-radius: 20px;
+      }
+    }
+
+    @media (min-width: 900px) {
+      .courses-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .nav-pills-desktop {
+        display: flex;
+      }
+
+      .mobile-quick-nav {
+        display: none;
+      }
+
+      .brand-text h1 {
+        font-size: 1.12rem;
+      }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(24px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeUp {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.55; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- الرأس الثابت -->
+  <header class="app-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/>
+            <path d="M16 14v1a4 4 0 0 1-8 0v-1"/>
+            <rect x="4" y="10" width="16" height="10" rx="4"/>
+            <circle cx="9" cy="15" r="1" fill="currentColor"/>
+            <circle cx="15" cy="15" r="1" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>بوابة الذكاء الاصطناعي</h1>
+          <p>المستوى الأول • الأرشيف والجدول الدراسي</p>
+        </div>
+      </div>
+
+      <nav class="header-actions" aria-label="التنقل الرئيسي">
+        <div class="nav-pills-desktop">
+          <a href="#archive-section" class="nav-pill">الملازم والمواد</a>
+          <a href="#schedule-section" class="nav-pill">جدول المحاضرات</a>
+        </div>
+        <button id="headerRefreshBtn" class="btn btn-soft btn-sm" type="button" title="تحديث الملفات من Google Drive">
+          <svg id="headerRefreshIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+            <polyline points="21 3 21 9 15 9"/>
+          </svg>
+          <span>تحديث</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- تنقل سريع للهواتف -->
+    <div class="mobile-quick-nav">
+      <a href="#archive-section" class="mobile-quick-btn active">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>الملازم والمحاضرات</span>
+      </a>
+      <a href="#schedule-section" class="mobile-quick-btn">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>الجدول الأسبوعي</span>
+      </a>
+    </div>
+
+    <!-- شريط التنبيه العاجل -->
+    <section id="urgentBanner" class="urgent-banner" aria-live="polite">
+      <div class="urgent-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </div>
+      <div class="urgent-content">
+        <div class="urgent-badge">
+          <span class="pulse-dot"></span>
+          <span>تنبيه عاجل للدفعة</span>
+        </div>
+        <p id="urgentBannerText" class="urgent-text"></p>
+      </div>
+    </section>
+
+    <!-- قسم أرشيف الملازم والمحاضرات -->
+    <section id="archive-section" class="section-block">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-title-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h2>أرشيف المواد والملازم</h2>
+            <p class="section-subtitle">مزامنة تلقائية مع مجلد Google Drive الرسمي للدفعة</p>
+          </div>
+        </div>
+
+        <button id="refreshFilesBtn" class="btn btn-outline btn-sm" type="button">
+          <svg id="refreshFilesIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+            <polyline points="21 3 21 9 15 9"/>
+          </svg>
+          <span>تحديث الملفات</span>
+        </button>
+      </div>
+
+      <div class="archive-toolbar">
+        <div class="search-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            id="searchInput"
+            class="search-input"
+            type="search"
+            placeholder="ابحث عن مادة أو اسم ملزمة أو محاضرة..."
+            autocomplete="off"
+          />
+          <button id="clearSearchBtn" class="clear-search-btn" type="button" aria-label="مسح البحث">✕</button>
+        </div>
+      </div>
+
+      <div class="cache-meta" style="margin-bottom: 12px;">
+        <span id="archiveStatsText">جاري تهيئة الأرشيف...</span>
+        <span id="lastSyncText"></span>
+      </div>
+
+      <!-- حاوية بطاقات المواد / شاشة التحميل -->
+      <div id="coursesContainer" class="courses-grid"></div>
+
+      <!-- نتائج البحث المباشر داخل الملفات -->
+      <div id="searchFilesContainer" class="search-files-box" style="display: none;"></div>
+    </section>
+
+    <!-- قسم جدول المحاضرات الأسبوعي -->
+    <section id="schedule-section" class="section-block">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-title-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <div>
+            <h2>جدول المحاضرات الأسبوعي</h2>
+            <p class="section-subtitle">يتم تحديد محاضرات اليوم الحالي تلقائياً</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="schedule-card">
+        <div id="daysTabs" class="days-tabs" role="tablist" aria-label="أيام الأسبوع"></div>
+        <div id="lecturesList" class="lectures-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- التذييل -->
+  <footer class="app-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>بوابة طلاب الذكاء الاصطناعي - المستوى الأول</strong>
+        <span style="opacity: 0.75;"> • صُمم لخدمة طلاب الدفعة</span>
+      </div>
+      <button id="openAdminLoginBtn" class="admin-lock-btn" type="button" title="إدارة المندوب والمندوبة">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span>إدارة المندوب</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- نافذة تفاصيل المادة والأقسام والملفات -->
+  <div id="courseModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="courseModalTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="courseModalTitle" class="modal-title">اسم المادة</h3>
+        <button class="modal-close-btn" type="button" data-close-modal="courseModal" aria-label="إغلاق">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="courseSectionTabs" class="section-tabs"></div>
+        <div id="courseFilesList" class="files-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة المعاينة المباشرة (Modal iframe) -->
+  <div id="previewModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="previewModalTitle">
+    <div class="modal-dialog modal-full">
+      <div class="modal-header">
+        <h3 id="previewModalTitle" class="modal-title">معاينة الملف</h3>
+        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+          <a id="previewExternalLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-soft btn-sm">
+            فتح في تبويب جديد
+          </a>
+          <button class="modal-close-btn" type="button" data-close-modal="previewModal" aria-label="إغلاق">✕</button>
+        </div>
+      </div>
+      <div class="modal-body no-pad">
+        <iframe id="previewIframe" class="preview-iframe" title="معاينة الملف" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تسجيل دخول المندوب -->
+  <div id="adminLoginModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="adminLoginTitle">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-header">
+        <h3 id="adminLoginTitle" class="modal-title">دخول المندوب والمندوبة</h3>
+        <button class="modal-close-btn" type="button" data-close-modal="adminLoginModal" aria-label="إغلاق">✕</button>
+      </div>
+      <form id="adminLoginForm" class="modal-body">
+        <div class="form-group">
+          <label for="adminPinInput" class="form-label">أدخل الرمز السري للإدارة</label>
+          <input id="adminPinInput" class="form-control" type="password" inputmode="numeric" placeholder="••••" required />
+        </div>
+        <p id="adminLoginError" style="color: var(--danger); font-size: 0.82rem; margin-bottom: 12px; display: none;">
+          الرمز السري غير صحيح، يرجى المحاولة مرة أخرى.
+        </p>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">فتح لوحة التحكم</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- نافذة لوحة تحكم المندوب والمندوبة -->
+  <div id="adminPanelModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="adminPanelTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="adminPanelTitle" class="modal-title">لوحة تحكم المندوب والمندوبة</h3>
+        <button class="modal-close-btn" type="button" data-close-modal="adminPanelModal" aria-label="إغلاق">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="admin-tabs">
+          <button type="button" class="admin-tab-btn active" data-admin-tab="announcement">التنبيه العاجل</button>
+          <button type="button" class="admin-tab-btn" data-admin-tab="schedule">إدارة الجدول</button>
+          <button type="button" class="admin-tab-btn" data-admin-tab="export">تصدير ومزامنة</button>
+        </div>
+
+        <!-- تبويب التنبيه العاجل -->
+        <div id="adminTabAnnouncement">
+          <div class="switch-row">
+            <div>
+              <strong style="font-size: 0.9rem;">إظهار شريط التنبيه العاجل</strong>
+              <p style="font-size: 0.76rem; color: var(--text-light);">يمكنك إخفاء الشريط عند عدم وجود إعلانات</p>
+            </div>
+            <input id="adminAnnouncementVisible" type="checkbox" style="width: 20px; height: 20px; accent-color: var(--primary);" />
+          </div>
+          <div class="form-group">
+            <label for="adminAnnouncementText" class="form-label">نص التنبيه العاجل</label>
+            <textarea id="adminAnnouncementText" class="form-control" rows="3" placeholder="اكتب الإعلان العاجل للدفعة هنا..."></textarea>
+          </div>
+          <button id="saveAnnouncementBtn" type="button" class="btn btn-primary" style="width: 100%;">حفظ التعديلات على التنبيه</button>
+        </div>
+
+        <!-- تبويب إدارة الجدول -->
+        <div id="adminTabSchedule" style="display: none;">
+          <div class="form-group">
+            <label for="adminScheduleDaySelect" class="form-label">اختر اليوم للتعديل</label>
+            <select id="adminScheduleDaySelect" class="form-control"></select>
+          </div>
+
+          <div id="adminDayLecturesList" style="margin-bottom: 16px;"></div>
+
+          <form id="adminLectureForm" style="background: var(--bg-page); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+            <h4 id="adminLectureFormTitle" style="font-size: 0.92rem; margin-bottom: 10px; color: var(--navy-900);">إضافة محاضرة جديدة</h4>
+            <input type="hidden" id="editLectureIndex" value="-1" />
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="lecSubjectInput">اسم المادة</label>
+                <input id="lecSubjectInput" class="form-control" type="text" placeholder="مثال: Computer programming" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="lecTimeInput">الوقت</label>
+                <input id="lecTimeInput" class="form-control" type="text" placeholder="مثال: 08:00 - 10:00 ص" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="lecRoomInput">القاعة / المعمل</label>
+                <input id="lecRoomInput" class="form-control" type="text" placeholder="مثال: قاعة 104 / معمل 2" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="lecDoctorInput">اسم الدكتور / المعيد</label>
+                <input id="lecDoctorInput" class="form-control" type="text" placeholder="مثال: د. أحمد محمد" required />
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="submit" id="saveLectureBtn" class="btn btn-primary" style="flex: 1;">إضافة للجدول</button>
+              <button type="button" id="cancelEditLectureBtn" class="btn btn-outline" style="display: none;">إلغاء التعديل</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- تبويب التصدير والمزامنة -->
+        <div id="adminTabExport" style="display: none;">
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 12px;">
+            التعديلات الحالية تُحفظ محلياً في متصفحك. لتعميم الإعلان والجدول على جميع الطلاب عند رفع الملف على GitHub Pages، انسخ كود الإعدادات أدناه واستبدله مكان <code>DEFAULT_PORTAL_DATA</code> في الكود، أو اربط قاعدة بيانات <strong>Firebase Realtime Database</strong> المعلّقة داخل الكود البرمجي.
+          </p>
+          <div id="exportJsonBox" class="code-box"></div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;">
+            <button id="copyConfigBtn" type="button" class="btn btn-primary btn-sm">نسخ إعدادات الإعلان والجدول</button>
+            <button id="downloadConfigBtn" type="button" class="btn btn-outline btn-sm">تنزيل ملف JSON</button>
+            <button id="resetDefaultDataBtn" type="button" class="btn btn-danger-soft btn-sm">استعادة البيانات الافتراضية</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- حاوية الإشعارات السريعة -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script>
+    /* =========================================================================
+       1. الإعدادات الأساسية والبيانات الافتراضية
+       ========================================================================= */
+    const DRIVE_API_URL = "https://script.google.com/macros/s/AKfycby0HRr9GA2QeBKf0N4lTKBkvfANZ7jO_OKSEfgbz-rIPFBQ14qy995LP9iZXiw5I6fx5A/exec";
+    const ADMIN_PIN = "2026"; // الرمز السري للوحة المندوب والمندوبة
+
+    const STORAGE_KEYS = {
+      DRIVE_CACHE: "ai_l1_drive_cache_v1",
+      PORTAL_CONFIG: "ai_l1_portal_config_v1"
+    };
+
+    const DAYS_ORDER = [
+      { key: "saturday", label: "السبت", jsDay: 6 },
+      { key: "sunday", label: "الأحد", jsDay: 0 },
+      { key: "monday", label: "الاثنين", jsDay: 1 },
+      { key: "tuesday", label: "الثلاثاء", jsDay: 2 },
+      { key: "wednesday", label: "الأربعاء", jsDay: 3 },
+      { key: "thursday", label: "الخميس", jsDay: 4 }
+    ];
+
+    // يمكنك استبدال هذا الكائن بالكود المُصدّر من لوحة التحكم لتحديث الموقع لجميع الطلاب عبر GitHub
+    const DEFAULT_PORTAL_DATA = {
+      announcement: {
+        visible: true,
+        text: "مرحباً بكم طلاب دفعة الذكاء الاصطناعي (المستوى الأول)! يرجى مراجعة ملازم الأسبوع الأول والتأكد من مواعيد المعامل في الجدول أدناه."
+      },
+      schedule: {
+        saturday: [
+          {
+            subject: "Introduction to computer",
+            time: "08:00 - 10:00 ص",
+            room: "قاعة 101",
+            doctor: "د. عبدالله المنصور"
+          },
+          {
+            subject: "Mathematics",
+            time: "10:15 - 12:15 م",
+            room: "قاعة 102",
+            doctor: "د. سامي الحسن"
+          }
+        ],
+        sunday: [
+          {
+            subject: "Computer programming",
+            time: "08:00 - 10:00 ص",
+            room: "مدرج الذكاء الاصطناعي",
+            doctor: "د. خالد السالم"
+          },
+          {
+            subject: "English language",
+            time: "10:30 - 12:00 م",
+            room: "قاعة 204",
+            doctor: "أ. نورة العلي"
+          }
+        ],
+        monday: [
+          {
+            subject: "Physics",
+            time: "08:30 - 10:30 ص",
+            room: "قاعة العلوم 1",
+            doctor: "د. طارق يوسف"
+          },
+          {
+            subject: "Arabic language",
+            time: "10:45 - 12:15 م",
+            room: "قاعة 105",
+            doctor: "د. فهد القحطاني"
+          }
+        ],
+        tuesday: [
+          {
+            subject: "Computer programming (عملي)",
+            time: "09:00 - 11:00 ص",
+            room: "معمل البرمجة 2",
+            doctor: "م. سارة الأحمد"
+          },
+          {
+            subject: "Mathematics (تمارين)",
+            time: "11:15 - 12:45 م",
+            room: "قاعة 102",
+            doctor: "م. عمر الزهراني"
+          }
+        ],
+        wednesday: [
+          {
+            subject: "Introduction to computer (عملي)",
+            time: "08:00 - 10:00 ص",
+            room: "معمل الحاسوب 1",
+            doctor: "م. ريم الدوسري"
+          },
+          {
+            subject: "Physics (معمل)",
+            time: "10:30 - 12:30 م",
+            room: "مختبر الفيزياء",
+            doctor: "م. مازن الشهري"
+          }
+        ],
+        thursday: [
+          {
+            subject: "English language",
+            time: "09:00 - 10:30 ص",
+            room: "قاعة 204",
+            doctor: "أ. نورة العلي"
+          }
+        ]
+      }
+    };
+
+    /* =========================================================================
+       2. حالة التطبيق (Application State)
+       ========================================================================= */
+    let coursesData = [];
+    let portalData = loadPortalData();
+    let activeDayKey = detectTodayKey();
+    let currentModalCourse = null;
+    let currentSectionIndex = 0;
+
+    /* =========================================================================
+       3. دوال مساعدة (Utilities)
+       ========================================================================= */
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function cloneObj(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function showToast(message, type = "default") {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transition = "opacity 0.2s";
+        setTimeout(() => toast.remove(), 220);
+      }, 2500);
+    }
+
+    function formatFileSize(sizeKB) {
+      const kb = Number(sizeKB);
+      if (!kb || Number.isNaN(kb) || kb <= 0) return "غير محدد";
+      if (kb < 1024) {
+        return `${Math.round(kb)} كيلوبايت`;
+      }
+      const mb = kb / 1024;
+      return `${mb.toFixed(mb >= 10 ? 1 : 2)} ميجابايت`;
+    }
+
+    function getFileBadge(fileName) {
+      const match = String(fileName || "").match(/\.([a-zA-Z0-9]{2,5})$/);
+      return match ? match[1].toUpperCase() : "FILE";
+    }
+
+    function getEmbedPreviewUrl(url) {
+      if (!url) return "";
+      // تحويل روابط Google Drive من /view إلى /preview لتعمل بسلاسة داخل iframe
+      return url.replace(/\/view(\?.*)?$/i, "/preview$1");
+    }
+
+    function getCourseVisual(courseName) {
+      const name = String(courseName || "").toLowerCase();
+      if (name.includes("math") || name.includes("رياض")) {
+        return { bg: "#eff6ff", color: "#1d4ed8", svg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M4 19h16"/><path d="M5 15l4-8 4 5 4-7 2 3"/></svg>` };
+      }
+      if (name.includes("program") || name.includes("code") || name.includes("برمج") || name.includes("python") || name.includes("c++")) {
+        return { bg: "#f0fdf4", color: "#15803d", svg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>` };
+      }
+      if (name.includes("phys") || name.includes("فيزي")) {
+        return { bg: "#fdf4ff", color: "#a21caf", svg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(45 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-45 12 12)"/></svg>` };
+      }
+      if (name.includes("english") || name.includes("إنجل") || name.includes("انجل")) {
+        return { bg: "#fff7ed", color: "#c2410c", svg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>` };
+      }
+      if (name.includes("arab") || name.includes("عرب")) {
+        return { bg: "#fef2f2", color: "#b91c1c", svg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>` };
+      }
+      if (name.includes("computer") || name.includes("intro") || name.includes("حاس") || name.includes("مقد")) {
+        return { bg: "#ecfeff", color: "#0e7490", svg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>` };
+      }
+      return { bg: "#f1f5f9", color: "#334155", svg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>` };
+    }
+
+    function countCourseFiles(course) {
+      if (!course || !Array.isArray(course.sections)) return 0;
+      return course.sections.reduce((total, sec) => total + (Array.isArray(sec.files) ? sec.files.length : 0), 0);
+    }
+
+    function detectTodayKey() {
+      const todayJs = new Date().getDay();
+      const found = DAYS_ORDER.find(d => d.jsDay === todayJs);
+      return found ? found.key : "saturday"; // إذا كان اليوم الجمعة يتم عرض السبت
+    }
+
+    function formatTimeAgo(timestamp) {
+      if (!timestamp) return "";
+      const date = new Date(timestamp);
+      return `آخر تحديث: ${date.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })}`;
+    }
+
+    /* =========================================================================
+       4. إدارة بيانات البوابة (الإعلان + الجدول)
+       ========================================================================= */
+    function loadPortalData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEYS.PORTAL_CONFIG);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.announcement && parsed.schedule) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.warn("تعذر قراءة الإعدادات المحفوظة:", e);
+      }
+      return cloneObj(DEFAULT_PORTAL_DATA);
+    }
+
+    function savePortalData() {
+      try {
+        localStorage.setItem(STORAGE_KEYS.PORTAL_CONFIG, JSON.stringify(portalData));
+      } catch (e) {
+        console.warn("تعذر حفظ الإعدادات محلياً:", e);
+      }
+      // في حال ربط Firebase لاحقاً، يمكنك استدعاء دالة المزامنة السحابية هنا:
+      // syncPortalDataToFirebase(portalData);
+    }
+
+    function renderAnnouncement() {
+      const banner = document.getElementById("urgentBanner");
+      const textEl = document.getElementById("urgentBannerText");
+      const { visible, text } = portalData.announcement;
+      if (visible && text && text.trim()) {
+        banner.classList.remove("hidden");
+        textEl.textContent = text;
+      } else {
+        banner.classList.add("hidden");
+      }
+    }
+
+    function renderSchedule() {
+      const tabsEl = document.getElementById("daysTabs");
+      const listEl = document.getElementById("lecturesList");
+      const todayKey = detectTodayKey();
+
+      tabsEl.innerHTML = DAYS_ORDER.map(day => {
+        const isActive = day.key === activeDayKey;
+        const isToday = day.jsDay === new Date().getDay();
+        return `
+          <button
+            type="button"
+            class="day-tab ${isActive ? "active" : ""}"
+            role="tab"
+            aria-selected="${isActive}"
+            data-day-key="${day.key}"
+          >
+            <span>${escapeHtml(day.label)}</span>
+            ${isToday ? `<span class="today-chip">اليوم</span>` : ""}
+          </button>
+        `;
+      }).join("");
+
+      const dayLectures = Array.isArray(portalData.schedule[activeDayKey])
+        ? portalData.schedule[activeDayKey]
+        : [];
+
+      if (dayLectures.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-state" style="border-style: solid;">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <h3>لا توجد محاضرات مسجلة لهذا اليوم</h3>
+            <p style="margin-bottom: 0;">استغل وقتك في مراجعة الملازم أو المشاريع العملية.</p>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = dayLectures.map(lec => `
+        <article class="lecture-item">
+          <div class="lecture-subject">${escapeHtml(lec.subject)}</div>
+          <div class="lecture-details">
+            <span class="lecture-detail">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>${escapeHtml(lec.time)}</span>
+            </span>
+            <span class="lecture-detail">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>${escapeHtml(lec.room)}</span>
+            </span>
+            <span class="lecture-detail">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>${escapeHtml(lec.doctor)}</span>
+            </span>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    /* =========================================================================
+       5. جلب بيانات Google Drive (API + Cache + Skeleton + Search)
+       ========================================================================= */
+    function renderLoadingSkeleton() {
+      const container = document.getElementById("coursesContainer");
+      const skeletons = Array.from({ length: 6 }).map(() => `
+        <div class="skeleton-card">
+          <div class="skeleton-box skeleton-icon"></div>
+          <div class="skeleton-lines">
+            <div class="skeleton-box skeleton-line-lg"></div>
+            <div class="skeleton-box skeleton-line-sm"></div>
+          </div>
+        </div>
+      `).join("");
+      container.innerHTML = skeletons;
+      document.getElementById("archiveStatsText").textContent = "جاري جلب الملازم والملفات من Google Drive...";
+    }
+
+    function setRefreshSpinning(isSpinning) {
+      const btns = [document.getElementById("refreshFilesBtn"), document.getElementById("headerRefreshBtn")];
+      const icons = [document.getElementById("refreshFilesIcon"), document.getElementById("headerRefreshIcon")];
+      btns.forEach(b => { if (b) b.disabled = isSpinning; });
+      icons.forEach(ic => {
+        if (!ic) return;
+        if (isSpinning) ic.classList.add("spin");
+        else ic.classList.remove("spin");
+      });
+    }
+
+    function loadDriveCache() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEYS.DRIVE_CACHE);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.data)) {
+          return parsed;
+        }
+      } catch (e) {
+        console.warn("خطأ في قراءة الكاش:", e);
+      }
+      return null;
+    }
+
+    function saveDriveCache(data) {
+      const payload = { timestamp: Date.now(), data };
+      try {
+        localStorage.setItem(STORAGE_KEYS.DRIVE_CACHE, JSON.stringify(payload));
+      } catch (e) {
+        console.warn("تعذر حفظ الكاش:", e);
+      }
+      return payload.timestamp;
+    }
+
+    async function fetchDriveData({ forceRefresh = false } = {}) {
+      const cached = loadDriveCache();
+
+      // إذا لم يكن هناك تحديث قسري ويوجد كاش: اعرضه فوراً ثم حدث في الخلفية بصمت
+      if (!forceRefresh && cached && cached.data.length > 0) {
+        coursesData = cached.data;
+        renderArchive();
+        document.getElementById("lastSyncText").textContent = formatTimeAgo(cached.timestamp);
+        // تحديث صامت في الخلفية لالتقاط أي ملف جديد رفعه المندوب
+        silentBackgroundSync();
+        return;
+      }
+
+      renderLoadingSkeleton();
+      setRefreshSpinning(true);
+
+      try {
+        const requestUrl = forceRefresh
+          ? `${DRIVE_API_URL}?_=${Date.now()}`
+          : DRIVE_API_URL;
+
+        // طلب fetch قياسي دون رؤوس مخصصة لتفادي مشاكل CORS مع Google Apps Script Redirect
+        const response = await fetch(requestUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const json = await response.json();
+        if (!Array.isArray(json)) {
+          throw new Error("صيغة البيانات العائدة غير متوقعة");
+        }
+
+        coursesData = json;
+        const ts = saveDriveCache(json);
+        document.getElementById("lastSyncText").textContent = formatTimeAgo(ts);
+        renderArchive();
+
+        if (forceRefresh) {
+          showToast("تم تحديث الملفات بنجاح", "success");
+        }
+      } catch (err) {
+        console.error("فشل جلب البيانات:", err);
+        if (cached && cached.data.length > 0) {
+          coursesData = cached.data;
+          renderArchive();
+          showToast("تعذر الاتصال بالخادم، تم عرض النسخة المحفوظة", "error");
+        } else {
+          renderArchiveError();
+        }
+      } finally {
+        setRefreshSpinning(false);
+      }
+    }
+
+    async function silentBackgroundSync() {
+      try {
+        const response = await fetch(DRIVE_API_URL);
+        if (!response.ok) return;
+        const json = await response.json();
+        if (Array.isArray(json)) {
+          coursesData = json;
+          const ts = saveDriveCache(json);
+          document.getElementById("lastSyncText").textContent = formatTimeAgo(ts);
+          renderArchive();
+        }
+      } catch (_) {
+        // تجاهل بصمت أثناء التحديث الخلفي
+      }
+    }
+
+    function renderArchiveError() {
+      const container = document.getElementById("coursesContainer");
+      container.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <h3>تعذر الاتصال بأرشيف Google Drive</h3>
+          <p>تحقق من اتصال الإنترنت ثم أعد المحاولة.</p>
+          <button type="button" class="btn btn-primary btn-sm" onclick="fetchDriveData({ forceRefresh: true })">إعادة المحاولة</button>
+        </div>
+      `;
+      document.getElementById("archiveStatsText").textContent = "تعذر تحميل البيانات";
+    }
+
+    function renderArchive() {
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      const container = document.getElementById("coursesContainer");
+      const filesBox = document.getElementById("searchFilesContainer");
+      const clearBtn = document.getElementById("clearSearchBtn");
+
+      clearBtn.classList.toggle("visible", query.length > 0);
+
+      const totalFilesAll = coursesData.reduce((acc, c) => acc + countCourseFiles(c), 0);
+      document.getElementById("archiveStatsText").textContent =
+        `${coursesData.length} مواد دراسية • ${totalFilesAll} ملف متاح`;
+
+      let filteredCourses = coursesData;
+      const matchingFiles = [];
+
+      if (query) {
+        filteredCourses = coursesData.filter(course => {
+          const courseMatch = String(course.name || "").toLowerCase().includes(query);
+          let hasFileMatch = false;
+
+          (course.sections || []).forEach(sec => {
+            (sec.files || []).forEach(file => {
+              if (String(file.name || "").toLowerCase().includes(query)) {
+                hasFileMatch = true;
+                matchingFiles.push({
+                  courseName: course.name,
+                  sectionName: sec.name || "ملفات عامة",
+                  file
+                });
+              }
+            });
+          });
+
+          return courseMatch || hasFileMatch;
+        });
+      }
+
+      if (filteredCourses.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <h3>لا توجد نتائج مطابقة</h3>
+            <p style="margin-bottom: 0;">لم يتم العثور على مواد أو ملفات تطابق "${escapeHtml(query)}"</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = filteredCourses.map(course => {
+          const visual = getCourseVisual(course.name);
+          const totalFiles = countCourseFiles(course);
+          const sectionsCount = Array.isArray(course.sections) ? course.sections.length : 0;
+
+          return `
+            <article class="course-card" role="button" tabindex="0" data-course-id="${escapeHtml(course.id)}">
+              <div class="course-icon" style="background: ${visual.bg}; color: ${visual.color};">
+                ${visual.svg}
+              </div>
+              <div class="course-info">
+                <h3 class="course-name">${escapeHtml(course.name)}</h3>
+                <div class="course-meta">
+                  <span class="badge-count">${totalFiles} ملف</span>
+                  <span>${sectionsCount} أقسام</span>
+                </div>
+              </div>
+              <svg class="course-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </article>
+          `;
+        }).join("");
+      }
+
+      // عرض الملفات المطابقة مباشرة عند البحث لتسهيل الوصول السريع
+      if (query && matchingFiles.length > 0) {
+        filesBox.style.display = "block";
+        filesBox.innerHTML = `
+          <div class="search-files-title">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>ملفات مطابقة للبحث (${matchingFiles.length})</span>
+          </div>
+          <div class="files-list">
+            ${matchingFiles.slice(0, 20).map(item => renderFileItemHtml(item.file, `${item.courseName} • ${item.sectionName}`)).join("")}
+          </div>
+        `;
+      } else {
+        filesBox.style.display = "none";
+        filesBox.innerHTML = "";
+      }
+    }
+
+    function renderFileItemHtml(file, extraSubtitle = "") {
+      const ext = getFileBadge(file.name);
+      const sizeStr = formatFileSize(file.sizeKB);
+      const previewUrl = file.previewUrl || "";
+      const downloadUrl = file.downloadUrl || previewUrl;
+
+      return `
+        <div class="file-item">
+          <div class="file-top">
+            <div class="file-type-icon">${escapeHtml(ext)}</div>
+            <div class="file-details">
+              <div class="file-name">${escapeHtml(file.name)}</div>
+              <div class="file-meta">
+                <span>الحجم: ${escapeHtml(sizeStr)}</span>
+                ${extraSubtitle ? `<span>• ${escapeHtml(extraSubtitle)}</span>` : ""}
+              </div>
+            </div>
+          </div>
+          <div class="file-actions">
+            <button
+              type="button"
+              class="file-action-btn preview"
+              data-action="preview"
+              data-url="${escapeHtml(previewUrl)}"
+              data-name="${escapeHtml(file.name)}"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>معاينة</span>
+            </button>
+            <a
+              href="${escapeHtml(downloadUrl)}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="file-action-btn download"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>تحميل مباشر</span>
+            </a>
+            <button
+              type="button"
+              class="file-action-btn copy"
+              data-action="copy"
+              data-url="${escapeHtml(previewUrl)}"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>نسخ الرابط</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    /* =========================================================================
+       6. نافذة تفاصيل المادة والمعاينة والنسخ
+       ========================================================================= */
+    function openCourseModal(courseId) {
+      const course = coursesData.find(c => String(c.id) === String(courseId));
+      if (!course) return;
+
+      currentModalCourse = course;
+      currentSectionIndex = 0;
+
+      document.getElementById("courseModalTitle").textContent = course.name || "تفاصيل المادة";
+      renderCourseModalBody();
+      openModal("courseModal");
+    }
+
+    function renderCourseModalBody() {
+      const tabsEl = document.getElementById("courseSectionTabs");
+      const filesEl = document.getElementById("courseFilesList");
+      const sections = Array.isArray(currentModalCourse?.sections) ? currentModalCourse.sections : [];
+
+      if (sections.length === 0) {
+        tabsEl.innerHTML = "";
+        filesEl.innerHTML = `
+          <div class="empty-state">
+            <h3>لا توجد أقسام أو ملفات في هذه المادة حالياً</h3>
+            <p style="margin-bottom: 0;">سيتم عرض الملازم فور رفعها على مجلد Google Drive.</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (currentSectionIndex >= sections.length) currentSectionIndex = 0;
+
+      tabsEl.innerHTML = sections.map((sec, idx) => {
+        const filesCount = Array.isArray(sec.files) ? sec.files.length : 0;
+        return `
+          <button
+            type="button"
+            class="section-tab-btn ${idx === currentSectionIndex ? "active" : ""}"
+            data-section-index="${idx}"
+          >
+            <span>${escapeHtml(sec.name || "قسم عام")}</span>
+            <span style="opacity: 0.8; font-size: 0.76rem;">(${filesCount})</span>
+          </button>
+        `;
+      }).join("");
+
+      const activeSection = sections[currentSectionIndex];
+      const files = Array.isArray(activeSection?.files) ? activeSection.files : [];
+
+      if (files.length === 0) {
+        filesEl.innerHTML = `
+          <div class="empty-state">
+            <h3>هذا القسم فارغ حالياً</h3>
+            <p style="margin-bottom: 0;">لم يتم رفع ملفات داخل "${escapeHtml(activeSection.name)}" بعد.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filesEl.innerHTML = files.map(file => renderFileItemHtml(file)).join("");
+    }
+
+    function openPreviewModal(previewUrl, fileName) {
+      if (!previewUrl) {
+        showToast("رابط المعاينة غير متوفر لهذا الملف", "error");
+        return;
+      }
+      document.getElementById("previewModalTitle").textContent = fileName || "معاينة الملف";
+      document.getElementById("previewExternalLink").href = previewUrl;
+      document.getElementById("previewIframe").src = getEmbedPreviewUrl(previewUrl);
+      openModal("previewModal");
+    }
+
+    async function copyLinkToClipboard(url) {
+      if (!url) {
+        showToast("لا يوجد رابط لنسخه", "error");
+        return;
+      }
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(url);
+        } else {
+          const tempInput = document.createElement("textarea");
+          tempInput.value = url;
+          tempInput.style.position = "fixed";
+          tempInput.style.opacity = "0";
+          document.body.appendChild(tempInput);
+          tempInput.select();
+          document.execCommand("copy");
+          tempInput.remove();
+        }
+        showToast("تم نسخ الرابط", "success");
+      } catch (e) {
+        showToast("تعذر نسخ الرابط تلقائياً", "error");
+      }
+    }
+
+    /* =========================================================================
+       7. إدارة النوافذ المنبثقة (Modals Helpers)
+       ========================================================================= */
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove("open");
+        if (id === "previewModal") {
+          document.getElementById("previewIframe").src = "about:blank";
+        }
+      }
+      const stillOpen = document.querySelector(".modal-backdrop.open");
+      if (!stillOpen) {
+        document.body.style.overflow = "";
+      }
+    }
+
+    /* =========================================================================
+       8. لوحة تحكم المندوب والمندوبة
+       ========================================================================= */
+    function populateAdminPanel() {
+      // تعبئة بيانات التنبيه العاجل
+      document.getElementById("adminAnnouncementVisible").checked = Boolean(portalData.announcement.visible);
+      document.getElementById("adminAnnouncementText").value = portalData.announcement.text || "";
+
+      // تعبئة قائمة الأيام
+      const daySelect = document.getElementById("adminScheduleDaySelect");
+      daySelect.innerHTML = DAYS_ORDER.map(d => `<option value="${d.key}">${escapeHtml(d.label)}</option>`).join("");
+      daySelect.value = activeDayKey;
+
+      renderAdminDayLectures();
+      refreshExportBox();
+    }
+
+    function renderAdminDayLectures() {
+      const dayKey = document.getElementById("adminScheduleDaySelect").value;
+      const listEl = document.getElementById("adminDayLecturesList");
+      const lectures = portalData.schedule[dayKey] || [];
+
+      if (lectures.length === 0) {
+        listEl.innerHTML = `<p style="font-size: 0.84rem; color: var(--text-light); padding: 10px 0;">لا توجد محاضرات مضافة لهذا اليوم.</p>`;
+        return;
+      }
+
+      listEl.innerHTML = lectures.map((lec, idx) => `
+        <div class="admin-lecture-row">
+          <div style="min-width: 0;">
+            <div style="font-weight: 800; font-size: 0.9rem; color: var(--navy-900);">${escapeHtml(lec.subject)}</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">${escapeHtml(lec.time)} • ${escapeHtml(lec.room)} • ${escapeHtml(lec.doctor)}</div>
+          </div>
+          <div style="display: flex; gap: 6px; flex-shrink: 0;">
+            <button type="button" class="btn btn-soft btn-sm" data-admin-edit="${idx}">تعديل</button>
+            <button type="button" class="btn btn-danger-soft btn-sm" data-admin-delete="${idx}">حذف</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function resetAdminLectureForm() {
+      document.getElementById("editLectureIndex").value = "-1";
+      document.getElementById("adminLectureFormTitle").textContent = "إضافة محاضرة جديدة";
+      document.getElementById("saveLectureBtn").textContent = "إضافة للجدول";
+      document.getElementById("cancelEditLectureBtn").style.display = "none";
+      document.getElementById("adminLectureForm").reset();
+    }
+
+    function refreshExportBox() {
+      const formatted = JSON.stringify(portalData, null, 2);
+      document.getElementById("exportJsonBox").textContent = `const DEFAULT_PORTAL_DATA = ${formatted};`;
+    }
+
+    /* =========================================================================
+       9. ربط الأحداث (Event Listeners)
+       ========================================================================= */
+    function initEvents() {
+      // تحديث الملفات يدوياً
+      document.getElementById("refreshFilesBtn").addEventListener("click", () => fetchDriveData({ forceRefresh: true }));
+      document.getElementById("headerRefreshBtn").addEventListener("click", () => fetchDriveData({ forceRefresh: true }));
+
+      // البحث الفوري
+      const searchInput = document.getElementById("searchInput");
+      searchInput.addEventListener("input", renderArchive);
+      document.getElementById("clearSearchBtn").addEventListener("click", () => {
+        searchInput.value = "";
+        renderArchive();
+        searchInput.focus();
+      });
+
+      // فتح المادة عند الضغط على البطاقة
+      document.getElementById("coursesContainer").addEventListener("click", e => {
+        const card = e.target.closest(".course-card");
+        if (card) openCourseModal(card.dataset.courseId);
+      });
+
+      document.getElementById("coursesContainer").addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") {
+          const card = e.target.closest(".course-card");
+          if (card) {
+            e.preventDefault();
+            openCourseModal(card.dataset.courseId);
+          }
+        }
+      });
+
+      // تبديل تبويبات الأقسام داخل نافذة المادة
+      document.getElementById("courseSectionTabs").addEventListener("click", e => {
+        const btn = e.target.closest(".section-tab-btn");
+        if (!btn) return;
+        currentSectionIndex = Number(btn.dataset.sectionIndex);
+        renderCourseModalBody();
+      });
+
+      // تفويض أحداث أزرار الملفات (معاينة / نسخ الرابط) في المودال ونتائج البحث
+      document.addEventListener("click", e => {
+        const actionBtn = e.target.closest("[data-action]");
+        if (!actionBtn) return;
+        const action = actionBtn.dataset.action;
+        const url = actionBtn.dataset.url;
+        const name = actionBtn.dataset.name;
+
+        if (action === "preview") {
+          openPreviewModal(url, name);
+        } else if (action === "copy") {
+          copyLinkToClipboard(url);
+        }
+      });
+
+      // تبديل أيام الأسبوع في الجدول
+      document.getElementById("daysTabs").addEventListener("click", e => {
+        const tab = e.target.closest(".day-tab");
+        if (!tab) return;
+        activeDayKey = tab.dataset.dayKey;
+        renderSchedule();
+      });
+
+      // إغلاق النوافذ المنبثقة
+      document.addEventListener("click", e => {
+        const closeBtn = e.target.closest("[data-close-modal]");
+        if (closeBtn) {
+          closeModal(closeBtn.dataset.closeModal);
+          return;
+        }
+        if (e.target.classList.contains("modal-backdrop")) {
+          closeModal(e.target.id);
+        }
+      });
+
+      document.addEventListener("keydown", e => {
+        if (e.key === "Escape") {
+          const openModals = document.querySelectorAll(".modal-backdrop.open");
+          if (openModals.length > 0) {
+            closeModal(openModals[openModals.length - 1].id);
+          }
+        }
+      });
+
+      // أزرار التنقل السريع للجوال
+      document.querySelectorAll(".mobile-quick-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".mobile-quick-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+        });
+      });
+
+      // دخول لوحة تحكم المندوب
+      document.getElementById("openAdminLoginBtn").addEventListener("click", () => {
+        document.getElementById("adminPinInput").value = "";
+        document.getElementById("adminLoginError").style.display = "none";
+        openModal("adminLoginModal");
+        setTimeout(() => document.getElementById("adminPinInput").focus(), 120);
+      });
+
+      document.getElementById("adminLoginForm").addEventListener("submit", e => {
+        e.preventDefault();
+        const pin = document.getElementById("adminPinInput").value.trim();
+        if (pin === ADMIN_PIN) {
+          closeModal("adminLoginModal");
+          populateAdminPanel();
+          openModal("adminPanelModal");
+        } else {
+          document.getElementById("adminLoginError").style.display = "block";
+        }
+      });
+
+      // تبويبات لوحة التحكم
+      document.querySelectorAll(".admin-tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".admin-tab-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const tab = btn.dataset.adminTab;
+          document.getElementById("adminTabAnnouncement").style.display = tab === "announcement" ? "block" : "none";
+          document.getElementById("adminTabSchedule").style.display = tab === "schedule" ? "block" : "none";
+          document.getElementById("adminTabExport").style.display = tab === "export" ? "block" : "none";
+          if (tab === "export") refreshExportBox();
+        });
+      });
+
+      // حفظ التنبيه العاجل
+      document.getElementById("saveAnnouncementBtn").addEventListener("click", () => {
+        portalData.announcement.visible = document.getElementById("adminAnnouncementVisible").checked;
+        portalData.announcement.text = document.getElementById("adminAnnouncementText").value.trim();
+        savePortalData();
+        renderAnnouncement();
+        refreshExportBox();
+        showToast("تم حفظ التنبيه العاجل", "success");
+      });
+
+      // إدارة الجدول في لوحة التحكم
+      document.getElementById("adminScheduleDaySelect").addEventListener("change", () => {
+        resetAdminLectureForm();
+        renderAdminDayLectures();
+      });
+
+      document.getElementById("adminDayLecturesList").addEventListener("click", e => {
+        const dayKey = document.getElementById("adminScheduleDaySelect").value;
+        const editBtn = e.target.closest("[data-admin-edit]");
+        const delBtn = e.target.closest("[data-admin-delete]");
+
+        if (editBtn) {
+          const idx = Number(editBtn.dataset.adminEdit);
+          const lec = portalData.schedule[dayKey][idx];
+          if (!lec) return;
+          document.getElementById("editLectureIndex").value = idx;
+          document.getElementById("lecSubjectInput").value = lec.subject;
+          document.getElementById("lecTimeInput").value = lec.time;
+          document.getElementById("lecRoomInput").value = lec.room;
+          document.getElementById("lecDoctorInput").value = lec.doctor;
+          document.getElementById("adminLectureFormTitle").textContent = "تعديل المحاضرة";
+          document.getElementById("saveLectureBtn").textContent = "حفظ التعديل";
+          document.getElementById("cancelEditLectureBtn").style.display = "inline-flex";
+        } else if (delBtn) {
+          const idx = Number(delBtn.dataset.adminDelete);
+          portalData.schedule[dayKey].splice(idx, 1);
+          savePortalData();
+          renderAdminDayLectures();
+          renderSchedule();
+          refreshExportBox();
+          showToast("تم حذف المحاضرة", "success");
+        }
+      });
+
+      document.getElementById("cancelEditLectureBtn").addEventListener("click", resetAdminLectureForm);
+
+      document.getElementById("adminLectureForm").addEventListener("submit", e => {
+        e.preventDefault();
+        const dayKey = document.getElementById("adminScheduleDaySelect").value;
+        if (!Array.isArray(portalData.schedule[dayKey])) {
+          portalData.schedule[dayKey] = [];
+        }
+
+        const lectureObj = {
+          subject: document.getElementById("lecSubjectInput").value.trim(),
+          time: document.getElementById("lecTimeInput").value.trim(),
+          room: document.getElementById("lecRoomInput").value.trim(),
+          doctor: document.getElementById("lecDoctorInput").value.trim()
+        };
+
+        const editIdx = Number(document.getElementById("editLectureIndex").value);
+        if (editIdx >= 0 && portalData.schedule[dayKey][editIdx]) {
+          portalData.schedule[dayKey][editIdx] = lectureObj;
+          showToast("تم تعديل المحاضرة بنجاح", "success");
+        } else {
+          portalData.schedule[dayKey].push(lectureObj);
+          showToast("تمت إضافة المحاضرة للجدول", "success");
+        }
+
+        savePortalData();
+        resetAdminLectureForm();
+        renderAdminDayLectures();
+        renderSchedule();
+        refreshExportBox();
+      });
+
+      // تصدير الإعدادات
+      document.getElementById("copyConfigBtn").addEventListener("click", () => {
+        const text = document.getElementById("exportJsonBox").textContent;
+        copyLinkToClipboard(text);
+      });
+
+      document.getElementById("downloadConfigBtn").addEventListener("click", () => {
+        const blob = new Blob([JSON.stringify(portalData, null, 2)], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "ai-portal-config.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("تم تنزيل ملف الإعدادات", "success");
+      });
+
+      document.getElementById("resetDefaultDataBtn").addEventListener("click", () => {
+        portalData = cloneObj(DEFAULT_PORTAL_DATA);
+        savePortalData();
+        renderAnnouncement();
+        renderSchedule();
+        populateAdminPanel();
+        showToast("تمت استعادة البيانات الافتراضية", "success");
+      });
+    }
+
+    /* =========================================================================
+       10. ربط Firebase Realtime Database مستقبلاً (اختياري للمزامنة الفورية)
+       =========================================================================
+       لتتزامن الإعلانات والجدول بين هواتف جميع الطلاب تلقائياً دون تعديل ملف GitHub:
+       1. أنشئ مشروعاً مجانياً في https://console.firebase.google.com
+       2. فعّل Realtime Database واختر وضع الاختبار (أو اضبط القواعد للقراءة للجميع والكتابة للمصرح لهم).
+       3. أضف مكتبتي Firebase في نهاية وسم <head> أو قبل هذا السكربت:
+          <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"><\/script>
+          <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"><\/script>
+       4. فك التعليق عن الكود التالي وضع بيانات مشروعك في firebaseConfig:
+
+       const firebaseConfig = {
+         apiKey: "YOUR_API_KEY",
+         authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+         databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+         projectId: "YOUR_PROJECT_ID",
+         storageBucket: "YOUR_PROJECT_ID.appspot.com",
+         messagingSenderId: "YOUR_SENDER_ID",
+         appId: "YOUR_APP_ID"
+       };
+
+       firebase.initializeApp(firebaseConfig);
+       const portalRef = firebase.database().ref("ai_level1_portal");
+
+       // الاستماع الفوري للتغييرات على هواتف جميع الطلاب:
+       portalRef.on("value", (snapshot) => {
+         const cloudData = snapshot.val();
+         if (cloudData && cloudData.announcement && cloudData.schedule) {
+           portalData = cloudData;
+           localStorage.setItem(STORAGE_KEYS.PORTAL_CONFIG, JSON.stringify(portalData));
+           renderAnnouncement();
+           renderSchedule();
+         }
+       });
+
+       // دالة الرفع للسحابة (استدعها داخل savePortalData عند حفظ المندوب):
+       function syncPortalDataToFirebase(data) {
+         portalRef.set(data)
+           .then(() => showToast("تمت المزامنة مع هواتف جميع الطلاب", "success"))
+           .catch((err) => console.error("خطأ في مزامنة Firebase:", err));
+       }
+    */
+
+    /* =========================================================================
+       11. تشغيل التطبيق عند تحميل الصفحة
+       ========================================================================= */
+    document.addEventListener("DOMContentLoaded", () => {
+      renderAnnouncement();
+      renderSchedule();
+      initEvents();
+      fetchDriveData({ forceRefresh: false });
+    });
+  </script>
+</body>
+</html>
