@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>بوابة دفعة الذكاء الاصطناعي | المستوى الأول</title>
+
+  <!-- خطوط عربية واضحة -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- شاشة تحميل حية عند بداية الفتح -->
+  <div id="appSplash" class="app-splash" aria-hidden="true">
+    <div class="splash-card">
+      <div class="splash-logo">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/>
+          <rect x="4" y="10" width="16" height="10" rx="4"/>
+          <circle cx="9" cy="15" r="1" fill="currentColor"/>
+          <circle cx="15" cy="15" r="1" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="splash-title">بوابة الذكاء الاصطناعي</div>
+      <div class="splash-sub">المستوى الأول • جاري تجهيز الملازم والجدول...</div>
+      <div class="splash-loader"><span></span></div>
+    </div>
+  </div>
+
+  <!-- الرأس الثابت -->
+  <header class="app-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/>
+            <rect x="4" y="10" width="16" height="10" rx="4"/>
+            <circle cx="9" cy="15" r="1" fill="currentColor"/>
+            <circle cx="15" cy="15" r="1" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>بوابة الذكاء الاصطناعي</h1>
+          <p>المستوى الأول • الملازم والجدول</p>
+        </div>
+      </div>
+
+      <nav class="header-actions" aria-label="التنقل الرئيسي">
+        <div class="nav-pills-desktop">
+          <a href="#archive-section" class="nav-pill">الملازم والمواد</a>
+          <a href="#schedule-section" class="nav-pill">الجدول الأسبوعي</a>
+        </div>
+        <button id="headerRefreshBtn" class="btn btn-soft btn-sm" type="button" title="تحديث الملفات من Google Drive">
+          <svg id="headerRefreshIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+            <polyline points="21 3 21 9 15 9"/>
+          </svg>
+          <span>تحديث</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- شريط التنبيه العاجل العلوي (يبقى ظاهراً بعد إغلاق النافذة المنبثقة) -->
+    <section id="urgentBanner" class="urgent-banner hidden" aria-live="polite">
+      <div class="urgent-banner-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </div>
+      <div class="urgent-banner-body">
+        <div class="urgent-badge">
+          <span class="pulse-dot"></span>
+          <span>تنبيه عاجل</span>
+        </div>
+        <p id="urgentBannerText" class="urgent-banner-text"></p>
+      </div>
+      <button id="reopenUrgentModalBtn" type="button" class="urgent-expand-btn" title="عرض التنبيه">عرض</button>
+    </section>
+
+    <!-- بطاقة إبراز التعاون مع mhs -->
+    <section class="collab-strip" aria-label="شكر وتقدير">
+      <div class="collab-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>تعاون مشترك</span>
+      </div>
+      <p class="collab-text">
+        تم تنظيم وربط أرشيف الملفات والروابط بالتعاون مع <strong class="collab-partner">mhs</strong> خدمةً لطلاب الدفعة.
+      </p>
+    </section>
+
+    <!-- تنقل سريع للهواتف -->
+    <div class="mobile-quick-nav">
+      <a href="#archive-section" class="mobile-quick-btn active" data-quick-nav>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>الملازم والمحاضرات</span>
+      </a>
+      <a href="#schedule-section" class="mobile-quick-btn" data-quick-nav>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>الجدول الأسبوعي</span>
+      </a>
+    </div>
+
+    <!-- قسم أرشيف المواد والملازم -->
+    <section id="archive-section" class="section-block">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-title-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h2>أرشيف المواد والملازم</h2>
+            <p class="section-subtitle">تحديث تلقائي من Google Drive مع تمييز الملفات الجديدة</p>
+          </div>
+        </div>
+
+        <button id="refreshFilesBtn" class="btn btn-outline btn-sm" type="button">
+          <svg id="refreshFilesIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+            <polyline points="21 3 21 9 15 9"/>
+          </svg>
+          <span>تحديث الملفات</span>
+        </button>
+      </div>
+
+      <!-- شريط البحث -->
+      <div class="search-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          id="searchInput"
+          class="search-input"
+          type="search"
+          placeholder="ابحث باسم المادة أو اسم الملزمة أو المحاضرة..."
+          autocomplete="off"
+        />
+        <button id="clearSearchBtn" class="clear-search-btn" type="button" aria-label="مسح البحث">✕</button>
+      </div>
+
+      <!-- إحصائيات وحالة المزامنة -->
+      <div class="archive-meta-row">
+        <span id="archiveStatsText">جاري الاتصال بالأرشيف...</span>
+        <span id="syncStatusPill" class="sync-status-pill"></span>
+      </div>
+
+      <!-- بطاقات المواد / Skeleton -->
+      <div id="coursesContainer" class="courses-grid"></div>
+
+      <!-- نتائج البحث المباشر في الملفات -->
+      <div id="searchFilesContainer" class="search-files-box hidden"></div>
+
+      <!-- مساحة مرنة جاهزة لقسم تسجيلات المحاضرات مستقبلاً -->
+      <div id="recordingsFutureSlot" class="recordings-slot hidden"></div>
+    </section>
+
+    <!-- قسم الجدول الأسبوعي -->
+    <section id="schedule-section" class="section-block">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-title-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <div>
+            <h2>الجدول الدراسي الأسبوعي</h2>
+            <p class="section-subtitle">يتم اختيار اليوم الحالي تلقائياً</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="schedule-card">
+        <div id="daysTabs" class="days-tabs" role="tablist" aria-label="أيام الأسبوع"></div>
+        <div id="lecturesList" class="lectures-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- التذييل -->
+  <footer class="app-footer">
+    <div class="container footer-inner">
+      <div class="footer-credits">
+        <strong>بوابة طلاب الذكاء الاصطناعي - المستوى الأول</strong>
+        <span class="footer-sub">• بالتعاون مع <strong>mhs</strong></span>
+      </div>
+      <button id="openAdminLoginBtn" class="admin-lock-btn" type="button" aria-label="فتح لوحة تحكم الأدمن">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span>لوحة الأدمن</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- نافذة التنبيه العاجل المنبثقة فور الدخول -->
+  <div id="urgentModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="urgentModalTitle">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-header urgent-modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="urgent-modal-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </div>
+          <h3 id="urgentModalTitle" class="modal-title">تنبيه عاجل للدفعة</h3>
+        </div>
+        <button class="modal-close-btn" type="button" data-close-modal="urgentModal" aria-label="إغلاق">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="urgentModalText" class="urgent-modal-text"></p>
+        <button id="ackUrgentBtn" type="button" class="btn btn-primary" style="width: 100%; margin-top: 16px;">
+          موافق 
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تفاصيل المادة والأقسام والملفات -->
+  <div id="courseModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="courseModalTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="courseModalTitle" class="modal-title">اسم المادة</h3>
+        <button class="modal-close-btn" type="button" data-close-modal="courseModal" aria-label="إغلاق">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="courseSectionTabs" class="section-tabs"></div>
+        <div id="courseFilesList" class="files-list"></div>
+        <div id="courseLoadMoreWrap" class="load-more-wrap hidden">
+          <button id="courseLoadMoreBtn" type="button" class="btn btn-outline">عرض المزيد من الملفات</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة المعاينة المباشرة (يُحمّل iframe فقط عند الطلب) -->
+  <div id="previewModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="previewModalTitle">
+    <div class="modal-dialog modal-full">
+      <div class="modal-header">
+        <h3 id="previewModalTitle" class="modal-title">معاينة الملف</h3>
+        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+          <a id="previewExternalLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-soft btn-sm">
+            فتح في تبويب جديد
+          </a>
+          <button class="modal-close-btn" type="button" data-close-modal="previewModal" aria-label="إغلاق">✕</button>
+        </div>
+      </div>
+      <div class="modal-body no-pad">
+        <iframe id="previewIframe" class="preview-iframe" title="معاينة الملف" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تسجيل دخول الأدمن -->
+  <div id="adminLoginModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="adminLoginTitle">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-header">
+        <h3 id="adminLoginTitle" class="modal-title">دخول لوحة الأدمن</h3>
+        <button class="modal-close-btn" type="button" data-close-modal="adminLoginModal" aria-label="إغلاق">✕</button>
+      </div>
+      <form id="adminLoginForm" class="modal-body">
+        <div class="form-group">
+          <label for="adminPinInput" class="form-label">الرمز السري للإدارة</label>
+          <input id="adminPinInput" class="form-control" type="password" inputmode="numeric" placeholder="أدخل الرمز (مثال: 2026)" required />
+        </div>
+        <p id="adminLoginError" class="form-error hidden">الرمز السري غير صحيح، حاول مرة أخرى.</p>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">دخول</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- نافذة لوحة تحكم الأدمن -->
+  <div id="adminPanelModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="adminPanelTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="adminPanelTitle" class="modal-title">إدارة البوابة (المندوب والفريق)</h3>
+        <button class="modal-close-btn" type="button" data-close-modal="adminPanelModal" aria-label="إغلاق">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="admin-tabs">
+          <button type="button" class="admin-tab-btn active" data-admin-tab="announcement">التنبيه العاجل</button>
+          <button type="button" class="admin-tab-btn" data-admin-tab="schedule">الجدول الأسبوعي</button>
+          <button type="button" class="admin-tab-btn" data-admin-tab="backup">حفظ وتصدير/استيراد</button>
+        </div>
+
+        <!-- تبويب التنبيه العاجل -->
+        <div id="adminTabAnnouncement">
+          <div class="switch-row">
+            <div>
+              <strong style="font-size: 0.9rem;">تفعيل التنبيه العاجل</strong>
+              <p style="font-size: 0.78rem; color: var(--text-light);">عند التفعيل يظهر للمستخدم منبثقاً ثم شريطاً علوياً</p>
+            </div>
+            <input id="adminAnnouncementVisible" type="checkbox" class="toggle-checkbox" />
+          </div>
+          <div class="form-group">
+            <label for="adminAnnouncementText" class="form-label">نص التنبيه العاجل</label>
+            <textarea id="adminAnnouncementText" class="form-control" rows="3" placeholder="اكتب نص الإعلان العاجل هنا..."></textarea>
+          </div>
+          <button id="saveAnnouncementBtn" type="button" class="btn btn-primary" style="width: 100%;">حفظ وتطبيق التنبيه</button>
+        </div>
+
+        <!-- تبويب إدارة الجدول -->
+        <div id="adminTabSchedule" class="hidden">
+          <div class="form-group">
+            <label for="adminScheduleDaySelect" class="form-label">اختر اليوم</label>
+            <select id="adminScheduleDaySelect" class="form-control"></select>
+          </div>
+
+          <div id="adminDayLecturesList" style="margin-bottom: 14px;"></div>
+
+          <form id="adminLectureForm" class="admin-subcard">
+            <h4 id="adminLectureFormTitle" class="admin-subcard-title">إضافة حصة جديدة</h4>
+            <input type="hidden" id="editLectureIndex" value="-1" />
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="lecSubjectInput">اسم المادة</label>
+                <input id="lecSubjectInput" class="form-control" type="text" placeholder="مثال: Computer programming" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="lecTimeInput">الوقت</label>
+                <input id="lecTimeInput" class="form-control" type="text" placeholder="مثال: 08:00 - 10:00 ص" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="lecRoomInput">القاعة</label>
+                <input id="lecRoomInput" class="form-control" type="text" placeholder="مثال: قاعة 102" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="lecDoctorInput">اسم الدكتور</label>
+                <input id="lecDoctorInput" class="form-control" type="text" placeholder="مثال: د. خالد السالم" required />
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="submit" id="saveLectureBtn" class="btn btn-primary" style="flex: 1;">إضافة للجدول</button>
+              <button type="button" id="cancelEditLectureBtn" class="btn btn-outline hidden">إلغاء التعديل</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- تبويب التصدير والاستيراد -->
+        <div id="adminTabBackup" class="hidden">
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 12px;">
+            تُحفظ تعديلاتك تلقائياً في المتصفح. يمكنك تصدير ملف الإعدادات لمشاركته أو رفعه داخل الكود، أو استيراد ملف إعدادات جاهز.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;">
+            <button id="downloadConfigBtn" type="button" class="btn btn-primary btn-sm">تصدير ملف JSON</button>
+            <button id="copyConfigBtn" type="button" class="btn btn-soft btn-sm">نسخ الإعدادات</button>
+            <label class="btn btn-outline btn-sm" style="cursor: pointer;">
+              <span>استيراد ملف JSON</span>
+              <input id="importConfigFile" type="file" accept=".json,application/json" class="hidden" />
+            </label>
+            <button id="resetDefaultDataBtn" type="button" class="btn btn-danger-soft btn-sm">استعادة الافتراضي</button>
+          </div>
+          <div id="exportJsonBox" class="code-box"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- حاوية الإشعارات السريعة -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
