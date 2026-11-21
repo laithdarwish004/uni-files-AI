@@ -297,13 +297,13 @@ main {
   flex-shrink: 0;
 }
 
-/* بطاقة إبراز التعاون مع mhs */
+/* بطاقة إبراز التعاون مع HMS */
 .collab-strip {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px 12px;
-  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
   border: 1px solid var(--primary-border);
   border-radius: var(--radius-md);
   padding: 10px 14px;
@@ -331,12 +331,13 @@ main {
 
 .collab-partner {
   display: inline-block;
-  padding: 0 7px;
+  padding: 1px 8px;
   border-radius: 6px;
-  background: var(--primary-light);
-  color: var(--primary-dark);
+  background: var(--primary);
+  color: #ffffff;
   font-weight: 800;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.8px;
+  font-size: 0.82rem;
 }
 
 /* تنقل سريع للهواتف */
@@ -953,7 +954,7 @@ main {
 }
 
 .footer-sub {
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .admin-lock-btn {
@@ -1119,7 +1120,34 @@ main {
   background: #f1f5f9;
 }
 
-/* نماذج لوحة الأدمن */
+/* نماذج وحالة المزامنة في لوحة الأدمن */
+.admin-sync-banner {
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  border: 1px solid transparent;
+}
+
+.admin-sync-banner.info {
+  background: var(--primary-light);
+  border-color: var(--primary-border);
+  color: var(--primary-dark);
+}
+
+.admin-sync-banner.success {
+  background: var(--success-bg);
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+
+.admin-sync-banner.error {
+  background: var(--danger-bg);
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
 .form-group {
   margin-bottom: 12px;
 }
@@ -1137,7 +1165,7 @@ main {
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 10px;
-  font-size: 16px; /* منع التكبير التلقائي على الآيفون */
+  font-size: 16px; /* يمنع التكبير التلقائي على الآيفون */
   background: #ffffff;
   color: var(--text-main);
 }
