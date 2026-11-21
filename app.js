@@ -2,7 +2,7 @@
    1. رابط الـ API والإعدادات الأساسية (يمكنك التعديل هنا بسهولة مستقبلاً)
    ========================================================================= */
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbyI4a8tf5gBnFpBiL92vKTFvT8vX9MEBKT7IBA8GllDjG3ldpI9EhFQWyyaPVPEvnHPGA/exec";
+  "https://script.google.com/macros/s/AKfycbyGI0KxyV1bKJ38o9hKbljAqiK-JERNQJ4bLL3Kfp7uToc9GgAD7Xtba0CY2hYTSJpzbw/exec";
 
 const ADMIN_PIN = "1011100010"; // الرمز السري الافتراضي للإدارة
 const FILES_PAGE_SIZE = 12; // التحميل التدريجي للملفات لحماية أداء الجوال
