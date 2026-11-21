@@ -4,7 +4,7 @@
 const API_URL =
   "https://script.google.com/macros/s/AKfycbyI4a8tf5gBnFpBiL92vKTFvT8vX9MEBKT7IBA8GllDjG3ldpI9EhFQWyyaPVPEvnHPGA/exec";
 
-const ADMIN_PIN = "2026"; // الرمز السري الافتراضي للإدارة
+const ADMIN_PIN = "1011100010"; // الرمز السري الافتراضي للإدارة
 const FILES_PAGE_SIZE = 12; // التحميل التدريجي للملفات لحماية أداء الجوال
 
 const STORAGE_KEYS = {
