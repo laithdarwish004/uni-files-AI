@@ -189,7 +189,7 @@ a {
 }
 
 .brand-text p {
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   color: #cbd5e1;
 }
 
@@ -200,35 +200,14 @@ a {
   flex-shrink: 0;
 }
 
-.nav-pills-desktop {
-  display: none;
-  gap: 6px;
-}
-
-.nav-pill {
-  padding: 7px 13px;
-  border-radius: 9px;
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: #e2e8f0;
-  background: rgba(255, 255, 255, 0.08);
-  transition: background 0.18s;
-}
-
-.nav-pill:hover {
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-}
-
 /* =========================================================
-   المحتوى الرئيسي والبطاقات العلوية
+   المحتوى الرئيسي والتنبيه وشريط HMS والتبويبات الرئيسية
    ========================================================= */
 main {
   flex: 1;
   padding: 16px 0 36px;
 }
 
-/* شريط التنبيه العاجل العلوي */
 .urgent-banner {
   display: flex;
   align-items: center;
@@ -238,7 +217,7 @@ main {
   border-right: 5px solid #d97706;
   border-radius: var(--radius-md);
   padding: 11px 14px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   box-shadow: var(--shadow-sm);
 }
 
@@ -297,7 +276,7 @@ main {
   flex-shrink: 0;
 }
 
-/* بطاقة إبراز التعاون مع HMS */
+/* بطاقة التعاون مع HMS */
 .collab-strip {
   display: flex;
   align-items: center;
@@ -336,47 +315,83 @@ main {
   background: var(--primary);
   color: #ffffff;
   font-weight: 800;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.9px;
   font-size: 0.82rem;
 }
 
-/* تنقل سريع للهواتف */
-.mobile-quick-nav {
+/* تبويبات التنقل المستقلة */
+.main-view-tabs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
   background: #ffffff;
-  padding: 7px;
-  border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  margin-bottom: 16px;
+  border-radius: 14px;
+  padding: 6px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
 }
 
-.mobile-quick-btn {
+.main-tab-btn {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 9px;
-  border-radius: 9px;
-  font-size: 0.86rem;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 10px 8px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.83rem;
   font-weight: 700;
-  color: var(--navy-800);
-  background: var(--bg-page);
+  cursor: pointer;
   transition: background 0.18s, color 0.18s;
+  min-height: 44px;
 }
 
-.mobile-quick-btn.active {
-  background: var(--primary);
+.main-tab-btn.active {
+  background: var(--navy-900);
   color: #ffffff;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.14);
+}
+
+.tab-count-pill {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.main-tab-btn.active .tab-count-pill {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.tab-new-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #16a34a;
+}
+
+.view-panel {
+  animation: fadeInPanel 0.18s ease;
+}
+
+@keyframes fadeInPanel {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* =========================================================
    رؤوس الأقسام والأزرار
    ========================================================= */
 .section-block {
-  margin-bottom: 28px;
-  scroll-margin-top: 72px;
+  margin-bottom: 24px;
 }
 
 .section-header {
@@ -404,6 +419,11 @@ main {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.section-title-icon.tasks-icon {
+  background: #eef2ff;
+  color: #4338ca;
 }
 
 .section-title h2 {
@@ -501,7 +521,7 @@ main {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: #ffffff;
-  font-size: 16px; /* يمنع التكبير التلقائي في iOS Safari */
+  font-size: 16px;
   color: var(--text-main);
   box-shadow: var(--shadow-sm);
 }
@@ -553,7 +573,6 @@ main {
   color: var(--text-muted);
 }
 
-/* بطاقات المواد */
 .courses-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -679,6 +698,170 @@ main {
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* =========================================================
+   قسم واجبات الأسبوع (Tasks + Drive Assignments)
+   ========================================================= */
+.task-filter-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.task-filter-btn {
+  padding: 6px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.task-filter-btn.active {
+  background: var(--navy-900);
+  color: #ffffff;
+  border-color: var(--navy-900);
+}
+
+.tasks-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.task-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--primary);
+  border-radius: var(--radius-lg);
+  padding: 15px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.task-card.is-exam {
+  border-top-color: #e11d48;
+}
+
+.task-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.task-subject-tag {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--navy-800);
+  background: #f1f5f9;
+  padding: 3px 10px;
+  border-radius: 8px;
+}
+
+.task-type-pill {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.task-type-pill.homework {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.task-type-pill.exam {
+  background: #ffe4e6;
+  color: #be123c;
+}
+
+.task-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--navy-900);
+  line-height: 1.4;
+}
+
+.task-due-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #b45309;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  padding: 5px 10px;
+  border-radius: 8px;
+  align-self: flex-start;
+}
+
+.task-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  white-space: pre-line;
+  line-height: 1.65;
+}
+
+.task-attachment-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+}
+
+.task-attachment-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  min-width: 0;
+  word-break: break-word;
+}
+
+.task-attachment-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.drive-assignments-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 15px;
+  box-shadow: var(--shadow-sm);
+}
+
+.drive-assignments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.drive-assignments-header h3 {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: var(--navy-900);
 }
 
 /* =========================================================
@@ -919,7 +1102,7 @@ main {
    ========================================================= */
 .empty-state {
   text-align: center;
-  padding: 30px 16px;
+  padding: 26px 16px;
   background: #ffffff;
   border: 1px dashed #cbd5e1;
   border-radius: var(--radius-lg);
@@ -927,7 +1110,7 @@ main {
 }
 
 .empty-state h3 {
-  font-size: 0.98rem;
+  font-size: 0.96rem;
   color: var(--navy-900);
   margin-bottom: 4px;
 }
@@ -954,7 +1137,7 @@ main {
 }
 
 .footer-sub {
-  opacity: 0.9;
+  opacity: 0.92;
 }
 
 .admin-lock-btn {
@@ -1120,6 +1303,23 @@ main {
   background: #f1f5f9;
 }
 
+.preview-image-wrap {
+  flex: 1;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: auto;
+}
+
+.preview-image-wrap img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
 /* نماذج وحالة المزامنة في لوحة الأدمن */
 .admin-sync-banner {
   padding: 10px 12px;
@@ -1165,7 +1365,7 @@ main {
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 10px;
-  font-size: 16px; /* يمنع التكبير التلقائي على الآيفون */
+  font-size: 16px;
   background: #ffffff;
   color: var(--text-main);
 }
@@ -1213,6 +1413,11 @@ main {
   padding-bottom: 10px;
   margin-bottom: 14px;
   border-bottom: 1px solid var(--border);
+  scrollbar-width: none;
+}
+
+.admin-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .admin-tab-btn {
@@ -1319,7 +1524,8 @@ main {
    التجاوب مع الأجهزة اللوحية والحاسوب
    ========================================================= */
 @media (min-width: 640px) {
-  .courses-grid {
+  .courses-grid,
+  .tasks-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -1346,19 +1552,16 @@ main {
   .modal-dialog {
     border-radius: 18px;
   }
+
+  .main-tab-btn {
+    font-size: 0.9rem;
+    padding: 11px 14px;
+  }
 }
 
 @media (min-width: 900px) {
   .courses-grid {
     grid-template-columns: repeat(3, 1fr);
-  }
-
-  .nav-pills-desktop {
-    display: flex;
-  }
-
-  .mobile-quick-nav {
-    display: none;
   }
 
   .brand-text h1 {
