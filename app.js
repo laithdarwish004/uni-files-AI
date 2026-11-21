@@ -4,7 +4,7 @@
 const DRIVE_API_URL =
   "https://script.google.com/macros/s/AKfycbx4IBzA2B-op7FNC0P7Bo1oVecBlLqGfBMH0g4JifOrHGjOyUsYbqhXuxbO_f3hy1vkMA/exec";
 
-const ADMIN_PIN = "2026"; // يمكنك تغيير رمز دخول الأدمن من هنا
+const ADMIN_PIN = "1011100010"; // يمكنك تغيير رمز دخول الأدمن من هنا
 const FILES_PAGE_SIZE = 12; // عدد الملفات المعروضة في كل دفعة لتسريع الهواتف
 
 const STORAGE_KEYS = {
