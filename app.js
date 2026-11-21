@@ -1,15 +1,15 @@
 /* =========================================================================
-   1. رابط الـ API والإعدادات الأساسية (يمكنك التعديل هنا بسهولة مستقبلاً)
+   1. رابط الـ API الثابت والإعدادات (ضع رابط /exec الجديد هنا)
    ========================================================================= */
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbyGI0KxyV1bKJ38o9hKbljAqiK-JERNQJ4bLL3Kfp7uToc9GgAD7Xtba0CY2hYTSJpzbw/exec";
+  "https://script.google.com/macros/s/AKfycby1qECUdwKBKHURX-IZbq1HKeffjIPpb3HGS4YzhKepcBLA4SBv4B4PCIaKxsy3ReyDfQ/exec";
 
-const ADMIN_PIN = "1011100010"; // الرمز السري الافتراضي للإدارة
-const FILES_PAGE_SIZE = 12; // التحميل التدريجي للملفات لحماية أداء الجوال
+const ADMIN_PIN = "1011100010"; // الرمز السري للإدارة (يمكنك تغييره من هنا)
+const FILES_PAGE_SIZE = 12; // عدد الملفات في كل دفعة لتسريع التصفح على الجوال
 
 const STORAGE_KEYS = {
-  PORTAL_CACHE: "ai_l1_portal_cloud_cache_v3",
-  SEEN_FILES: "ai_l1_seen_file_ids_v3"
+  PORTAL_CACHE: "ai_l1_portal_cloud_cache_v5",
+  SEEN_FILES: "ai_l1_seen_file_ids_v5"
 };
 
 const DAYS_ORDER = [
@@ -26,6 +26,7 @@ const DEFAULT_PORTAL_DATA = {
     visible: false,
     text: ""
   },
+  tasks: [],
   schedule: {
     saturday: [
       { subject: "Introduction to computer", time: "08:00 - 10:00 ص", room: "قاعة 101", doctor: "د. عبدالله المنصور" },
@@ -67,13 +68,18 @@ const FUTURE_RECORDINGS_CONFIG = {
    2. حالة التطبيق (Application State)
    ========================================================================= */
 let coursesData = [];
+let driveAssignmentsData = [];
 let portalData = cloneObj(DEFAULT_PORTAL_DATA);
+
+let activeViewTab = "archive";
 let activeDayKey = detectTodayKey();
+let activeTaskFilter = "all";
 let currentModalCourse = null;
 let currentSectionIndex = 0;
 
 let sectionVisibleLimit = FILES_PAGE_SIZE;
 let searchVisibleLimit = FILES_PAGE_SIZE;
+let driveAssignmentsVisibleLimit = FILES_PAGE_SIZE;
 
 let sessionNewFileIds = new Set();
 let sessionAdminPin = "";
@@ -81,7 +87,7 @@ let isAdminSyncing = false;
 let lastShownUrgentSignature = "";
 
 /* =========================================================================
-   3. طبقة التخزين الآمنة (Safari Private Mode & Storage Protection)
+   3. طبقة التخزين الآمنة (حماية Safari والوضع الخاص)
    ========================================================================= */
 function safeStorageGet(key) {
   try {
@@ -149,6 +155,10 @@ function getEmbedPreviewUrl(url) {
   return url.replace(/\/view(\?.*)?$/i, "/preview$1");
 }
 
+function isDirectImageUrl(url) {
+  return /\.(png|jpe?g|gif|webp|bmp|svg)(\?.*)?$/i.test(String(url || "").trim());
+}
+
 function detectTodayKey() {
   const todayJs = new Date().getDay();
   const found = DAYS_ORDER.find(d => d.jsDay === todayJs);
@@ -185,10 +195,23 @@ function hideSplashScreen() {
   setTimeout(() => splash.remove(), 320);
 }
 
+function switchMainViewTab(tabName) {
+  activeViewTab = tabName;
+  document.querySelectorAll("[data-view-tab]").forEach(btn => {
+    const isActive = btn.dataset.viewTab === tabName;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-selected", String(isActive));
+  });
+
+  document.getElementById("archive-section").classList.toggle("hidden", tabName !== "archive");
+  document.getElementById("tasks-section").classList.toggle("hidden", tabName !== "tasks");
+  document.getElementById("schedule-section").classList.toggle("hidden", tabName !== "schedule");
+}
+
 /* =========================================================================
-   5. تتبع الملفات الجديدة (شارة "جديد")
-   ========================================================================= */
-function extractAllFileIds(courses) {
+   5. تتبع الملفات الجديدة (شارة "جديد") للمواد وملفات مجلد الواجبات
+   ========================================================= */
+function extractAllFileIds(courses, assignmentFiles) {
   const ids = [];
   (courses || []).forEach(course => {
     (course.sections || []).forEach(sec => {
@@ -196,6 +219,9 @@ function extractAllFileIds(courses) {
         if (file && file.id) ids.push(String(file.id));
       });
     });
+  });
+  (assignmentFiles || []).forEach(file => {
+    if (file && file.id) ids.push(String(file.id));
   });
   return ids;
 }
@@ -215,8 +241,8 @@ function saveSeenFileIds(idSet) {
   safeStorageSet(STORAGE_KEYS.SEEN_FILES, JSON.stringify(Array.from(idSet)));
 }
 
-function detectNewFilesFromData(courses) {
-  const currentIds = extractAllFileIds(courses);
+function detectNewFilesFromData(courses, assignmentFiles) {
+  const currentIds = extractAllFileIds(courses, assignmentFiles);
   const storedSeen = loadSeenFileIds();
 
   if (storedSeen === null) {
@@ -231,7 +257,7 @@ function detectNewFilesFromData(courses) {
   });
 }
 
-function markSectionFilesAsSeen(files) {
+function markFilesAsSeen(files) {
   if (!Array.isArray(files) || files.length === 0) return;
   const storedSeen = loadSeenFileIds() || new Set();
   let changed = false;
@@ -269,8 +295,8 @@ function countCourseFiles(course) {
 }
 
 /* =========================================================================
-   6. تطبيع وعرض التنبيه العاجل والجدول الأسبوعي من الخادم
-   ========================================================================= */
+   6. تطبيع وعرض البيانات (subjects, notice, schedule, tasks, driveAssignments)
+   ========================================================= */
 function normalizeNotice(rawNotice) {
   if (!rawNotice || typeof rawNotice !== "object") return null;
   return {
@@ -318,11 +344,41 @@ function normalizeSchedule(rawSchedule) {
   return hasKnownDayKey ? normalized : null;
 }
 
+function normalizeTasks(rawTasks) {
+  if (!Array.isArray(rawTasks)) return null;
+  return rawTasks.map((item, idx) => ({
+    id: String(item.id || `task_${Date.now()}_${idx}`),
+    subject: String(item.subject || item.course || "").trim(),
+    type: String(item.type || "واجب").trim(),
+    title: String(item.title || item.name || "").trim(),
+    due: String(item.due || item.dueDate || item.deadline || "").trim(),
+    description: String(item.description || item.details || "").trim(),
+    attachmentUrl: String(item.attachmentUrl || item.attachment || item.url || "").trim(),
+    attachmentName: String(item.attachmentName || "").trim()
+  }));
+}
+
+function normalizeDriveAssignments(rawFiles) {
+  if (!Array.isArray(rawFiles)) return [];
+  const files = [];
+  rawFiles.forEach(item => {
+    if (item && Array.isArray(item.files)) {
+      item.files.forEach(f => {
+        if (f && (f.name || f.id)) files.push(f);
+      });
+    } else if (item && (item.name || item.id)) {
+      files.push(item);
+    }
+  });
+  return files;
+}
+
 function applyApiPayload(payload, { isInitialOrManual = false } = {}) {
-  // التوافق مع الصيغة الجديدة { subjects, notice, schedule } أو صيغة المصفوفة المباشرة
   let subjects = [];
   let serverNotice = null;
   let serverSchedule = null;
+  let serverTasks = null;
+  let serverDriveAssignments = [];
 
   if (Array.isArray(payload)) {
     subjects = payload;
@@ -332,18 +388,25 @@ function applyApiPayload(payload, { isInitialOrManual = false } = {}) {
       : (Array.isArray(payload.courses) ? payload.courses : []);
     serverNotice = normalizeNotice(payload.notice);
     serverSchedule = normalizeSchedule(payload.schedule);
+    serverTasks = normalizeTasks(payload.tasks);
+    serverDriveAssignments = normalizeDriveAssignments(payload.driveAssignments);
   }
 
   coursesData = subjects;
-  if (serverNotice) {
-    portalData.announcement = serverNotice;
-  }
-  if (serverSchedule) {
-    portalData.schedule = serverSchedule;
+  driveAssignmentsData = serverDriveAssignments;
+
+  if (serverNotice) portalData.announcement = serverNotice;
+  if (serverSchedule) portalData.schedule = serverSchedule;
+  if (serverTasks !== null) portalData.tasks = serverTasks;
+
+  detectNewFilesFromData(coursesData, driveAssignmentsData);
+
+  if (activeViewTab === "tasks") {
+    markFilesAsSeen(driveAssignmentsData);
   }
 
-  detectNewFilesFromData(coursesData);
   renderArchive();
+  renderTasksSection();
   renderSchedule();
   renderAnnouncementUI({ openModalIfChanged: isInitialOrManual });
 }
@@ -372,6 +435,147 @@ function renderAnnouncementUI({ openModalIfChanged = false } = {}) {
   }
 }
 
+/* =========================================================================
+   7. عرض قسم واجبات الأسبوع (tasks + driveAssignments)
+   ========================================================= */
+function updateTasksTabIndicators() {
+  const badgeEl = document.getElementById("tabTasksBadge");
+  const dotEl = document.getElementById("tabNewDriveDot");
+  const count = Array.isArray(portalData.tasks) ? portalData.tasks.length : 0;
+
+  if (count > 0) {
+    badgeEl.textContent = count;
+    badgeEl.classList.remove("hidden");
+  } else {
+    badgeEl.classList.add("hidden");
+  }
+
+  const hasNewDriveAssignments = driveAssignmentsData.some(
+    f => f && f.id && sessionNewFileIds.has(String(f.id))
+  );
+  dotEl.classList.toggle("hidden", !hasNewDriveAssignments);
+}
+
+function renderTasksSection() {
+  updateTasksTabIndicators();
+
+  const gridEl = document.getElementById("tasksGrid");
+  const allTasks = Array.isArray(portalData.tasks) ? portalData.tasks : [];
+
+  const filteredTasks = activeTaskFilter === "all"
+    ? allTasks
+    : allTasks.filter(t => t.type === activeTaskFilter);
+
+  if (filteredTasks.length === 0) {
+    const emptyMsg = allTasks.length === 0
+      ? "لا توجد واجبات أو اختبارات مضافة لهذا الأسبوع حالياً."
+      : `لا توجد عناصر من نوع "${escapeHtml(activeTaskFilter)}" حالياً.`;
+    gridEl.innerHTML = `
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <h3>${emptyMsg}</h3>
+        <p style="margin-bottom: 0;">يمكن للأدمن إضافة الواجبات والاختبارات من لوحة التحكم، كما تظهر ملفات مجلد الواجبات أدناه.</p>
+      </div>
+    `;
+  } else {
+    gridEl.innerHTML = filteredTasks.map(task => {
+      const isExam = task.type === "اختبار";
+      const hasAttachment = Boolean(task.attachmentUrl);
+      const attachmentTitle = task.attachmentName || "مرفق الواجب";
+
+      return `
+        <article class="task-card ${isExam ? "is-exam" : ""}">
+          <div class="task-card-top">
+            <span class="task-subject-tag">${escapeHtml(task.subject)}</span>
+            <span class="task-type-pill ${isExam ? "exam" : "homework"}">${escapeHtml(task.type)}</span>
+          </div>
+
+          <h3 class="task-title">${escapeHtml(task.title)}</h3>
+
+          <div class="task-due-row">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>وقت التسليم: ${escapeHtml(task.due)}</span>
+          </div>
+
+          <div class="task-desc">${escapeHtml(task.description)}</div>
+
+          ${hasAttachment ? `
+            <div class="task-attachment-bar">
+              <span class="task-attachment-label">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                <span>${escapeHtml(attachmentTitle)}</span>
+              </span>
+              <div class="task-attachment-actions">
+                <button
+                  type="button"
+                  class="btn btn-soft btn-sm"
+                  data-action="preview"
+                  data-url="${escapeHtml(task.attachmentUrl)}"
+                  data-name="${escapeHtml(attachmentTitle)}"
+                >
+                  معاينة
+                </button>
+                <a
+                  href="${escapeHtml(task.attachmentUrl)}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-outline btn-sm"
+                >
+                  فتح المرفق
+                </a>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm"
+                  data-action="copy"
+                  data-url="${escapeHtml(task.attachmentUrl)}"
+                >
+                  نسخ
+                </button>
+              </div>
+            </div>
+          ` : ""}
+        </article>
+      `;
+    }).join("");
+  }
+
+  renderDriveAssignmentsList();
+}
+
+function renderDriveAssignmentsList() {
+  const countEl = document.getElementById("driveAssignmentsCount");
+  const listEl = document.getElementById("driveAssignmentsList");
+  const loadMoreWrap = document.getElementById("driveAssignmentsLoadMoreWrap");
+  const loadMoreBtn = document.getElementById("driveAssignmentsLoadMoreBtn");
+
+  const files = Array.isArray(driveAssignmentsData) ? driveAssignmentsData : [];
+  countEl.textContent = `${files.length} ملف`;
+
+  if (files.length === 0) {
+    loadMoreWrap.classList.add("hidden");
+    listEl.innerHTML = `
+      <div class="empty-state" style="padding: 18px 12px;">
+        <p style="margin-bottom: 0;">لا توجد ملفات مرفوعة في مجلد "واجبات" على Google Drive حالياً.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const visibleFiles = files.slice(0, driveAssignmentsVisibleLimit);
+  const remaining = files.length - visibleFiles.length;
+
+  listEl.innerHTML = visibleFiles.map(file => renderFileItemHtml(file)).join("");
+
+  if (remaining > 0) {
+    loadMoreWrap.classList.remove("hidden");
+    loadMoreBtn.textContent = `عرض المزيد من ملفات الواجبات (متبقي ${remaining})`;
+  } else {
+    loadMoreWrap.classList.add("hidden");
+  }
+}
+
+/* =========================================================================
+   8. عرض الجدول الأسبوعي
+   ========================================================= */
 function renderSchedule() {
   const tabsEl = document.getElementById("daysTabs");
   const listEl = document.getElementById("lecturesList");
@@ -402,7 +606,7 @@ function renderSchedule() {
     listEl.innerHTML = `
       <div class="empty-state" style="border-style: solid;">
         <h3>لا توجد محاضرات مسجلة لهذا اليوم</h3>
-        <p style="margin-bottom: 0;">يمكنك مراجعة الملازم والملفات المتوفرة بالأعلى.</p>
+        <p style="margin-bottom: 0;">يمكنك مراجعة الملازم أو متابعة واجبات الأسبوع.</p>
       </div>
     `;
     return;
@@ -430,8 +634,8 @@ function renderSchedule() {
 }
 
 /* =========================================================================
-   7. جلب البيانات والمزامنة عبر GET (كاش فوري + تحديث بالخلفية)
-   ========================================================================= */
+   9. جلب البيانات والمزامنة عبر GET (كاش فوري + تحديث بالخلفية)
+   ========================================================= */
 function renderLoadingSkeleton() {
   const container = document.getElementById("coursesContainer");
   container.innerHTML = Array.from({ length: 6 }).map(() => `
@@ -480,11 +684,14 @@ function updateCachedPortalFields() {
   const baseSubjects = Array.isArray(existing?.payload)
     ? existing.payload
     : (existing?.payload?.subjects || coursesData);
+  const baseDriveAssignments = existing?.payload?.driveAssignments || driveAssignmentsData;
 
   savePortalCache({
     subjects: baseSubjects,
     notice: portalData.announcement,
-    schedule: portalData.schedule
+    schedule: portalData.schedule,
+    tasks: portalData.tasks,
+    driveAssignments: baseDriveAssignments
   });
 }
 
@@ -496,7 +703,6 @@ function formatSyncTime(ts) {
 async function fetchPortalData({ forceRefresh = false } = {}) {
   const cached = loadPortalCache();
 
-  // عرض فوري للكاش عند الفتح ثم التحديث الصامت في الخلفية
   if (!forceRefresh && cached) {
     applyApiPayload(cached.payload, { isInitialOrManual: true });
     hideSplashScreen();
@@ -519,7 +725,7 @@ async function fetchPortalData({ forceRefresh = false } = {}) {
     setSyncStatus(formatSyncTime(ts), false);
 
     if (forceRefresh) {
-      showToast("تم تحديث الملازم والجدول بنجاح", "success");
+      showToast("تم تحديث الملازم والواجبات والجدول", "success");
     }
   } catch (err) {
     if (cached) {
@@ -562,7 +768,7 @@ function renderArchiveError() {
 }
 
 /* =========================================================================
-   8. عرض الأرشيف والبحث والتحميل التدريجي
+   10. عرض الأرشيف والبحث والتحميل التدريجي
    ========================================================= */
 function renderArchive() {
   const searchInput = document.getElementById("searchInput");
@@ -751,7 +957,7 @@ function renderFileItemHtml(file, extraSubtitle = "") {
 }
 
 /* =========================================================================
-   9. نافذة المادة والمعاينة والنسخ
+   11. نافذة المادة والمعاينة (دعم Drive / PDF / الصور) والنسخ
    ========================================================= */
 function openCourseModal(courseId) {
   const course = coursesData.find(c => String(c.id) === String(courseId));
@@ -815,7 +1021,7 @@ function renderCourseModalBody() {
     return;
   }
 
-  markSectionFilesAsSeen(allFiles);
+  markFilesAsSeen(allFiles);
 
   const visibleFiles = allFiles.slice(0, sectionVisibleLimit);
   const remaining = allFiles.length - visibleFiles.length;
@@ -837,7 +1043,23 @@ function openPreviewModal(previewUrl, fileName) {
   }
   document.getElementById("previewModalTitle").textContent = fileName || "معاينة الملف";
   document.getElementById("previewExternalLink").href = previewUrl;
-  document.getElementById("previewIframe").src = getEmbedPreviewUrl(previewUrl);
+
+  const iframe = document.getElementById("previewIframe");
+  const imgWrap = document.getElementById("previewImageWrap");
+  const img = document.getElementById("previewImage");
+
+  if (isDirectImageUrl(previewUrl)) {
+    iframe.classList.add("hidden");
+    iframe.src = "about:blank";
+    img.src = previewUrl;
+    imgWrap.classList.remove("hidden");
+  } else {
+    imgWrap.classList.add("hidden");
+    img.src = "";
+    iframe.classList.remove("hidden");
+    iframe.src = getEmbedPreviewUrl(previewUrl);
+  }
+
   openModal("previewModal");
 }
 
@@ -866,7 +1088,7 @@ async function copyText(text) {
 }
 
 /* =========================================================================
-   10. إدارة النوافذ المنبثقة (Modals)
+   12. إدارة النوافذ المنبثقة (Modals)
    ========================================================= */
 function openModal(id) {
   const el = document.getElementById(id);
@@ -881,6 +1103,7 @@ function closeModal(id) {
   el.classList.remove("open");
   if (id === "previewModal") {
     document.getElementById("previewIframe").src = "about:blank";
+    document.getElementById("previewImage").src = "";
   }
   if (!document.querySelector(".modal-backdrop.open")) {
     document.body.style.overflow = "";
@@ -888,7 +1111,7 @@ function closeModal(id) {
 }
 
 /* =========================================================================
-   11. لوحة الإدارة والمزامنة عبر POST بصيغة text/plain
+   13. لوحة الإدارة والمزامنة عبر POST بصيغة text/plain
    ========================================================= */
 function setAdminSyncBanner(message = "", type = "info") {
   const banner = document.getElementById("adminSyncBanner");
@@ -904,35 +1127,25 @@ function setAdminSyncBanner(message = "", type = "info") {
 
 function setAdminControlsDisabled(disabled) {
   isAdminSyncing = disabled;
-  const ids = ["saveAnnouncementBtn", "saveLectureBtn", "adminScheduleDaySelect"];
+  const ids = ["saveAnnouncementBtn", "saveLectureBtn", "saveTaskBtn", "adminScheduleDaySelect"];
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.disabled = disabled;
   });
 }
 
-async function syncAdminUpdatesToServer(previousSnapshot, successMessage) {
+async function syncAdminUpdatesToServer(previousSnapshot, postPayload, successMessage) {
   setAdminControlsDisabled(true);
   setAdminSyncBanner("جاري حفظ التعديلات ومزامنتها لجميع الطلاب...", "info");
 
-  const payload = {
-    pin: sessionAdminPin,
-    notice: {
-      visible: Boolean(portalData.announcement.visible),
-      enabled: Boolean(portalData.announcement.visible),
-      text: String(portalData.announcement.text || "").trim()
-    },
-    schedule: portalData.schedule
-  };
-
   try {
-    // إرسال POST بصيغة text/plain لتجنب مشاكل CORS Preflight في Google Apps Script
+    // إرسال POST بصيغة text/plain لتجنب CORS preflight في Google Apps Script
     const response = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "text/plain;charset=utf-8"
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(postPayload)
     });
 
     if (!response.ok) {
@@ -957,10 +1170,11 @@ async function syncAdminUpdatesToServer(previousSnapshot, successMessage) {
       throw new Error(resJson.error || resJson.message || "تم رفض التعديل من الخادم (تأكد من الرمز السري)");
     }
 
-    // تحديث الكاش المحلي والواجهة فوراً بعد نجاح الحفظ في السحابة
     updateCachedPortalFields();
     renderAnnouncementUI({ openModalIfChanged: false });
+    renderTasksSection();
     renderSchedule();
+    renderAdminTasksList();
     renderAdminDayLectures();
     refreshExportBox();
 
@@ -968,9 +1182,9 @@ async function syncAdminUpdatesToServer(previousSnapshot, successMessage) {
     showToast(successMessage, "success");
     return true;
   } catch (err) {
-    // التراجع عن التعديل المحلي إذا فشل الحفظ في السحابة لضمان تطابق البيانات
     portalData = previousSnapshot;
     renderAnnouncementUI({ openModalIfChanged: false });
+    renderTasksSection();
     renderSchedule();
     populateAdminPanel();
 
@@ -987,12 +1201,77 @@ function populateAdminPanel() {
   document.getElementById("adminAnnouncementVisible").checked = Boolean(portalData.announcement.visible);
   document.getElementById("adminAnnouncementText").value = portalData.announcement.text || "";
 
+  // اقتراح أسماء المواد من Drive في datalist
+  const datalist = document.getElementById("subjectsDatalist");
+  const defaultSubjects = [
+    "Mathematics",
+    "Introduction to computer",
+    "English language",
+    "Computer programming",
+    "Arabic language",
+    "Physics"
+  ];
+  const subjectNames = Array.from(
+    new Set([...coursesData.map(c => c.name).filter(Boolean), ...defaultSubjects])
+  );
+  datalist.innerHTML = subjectNames.map(name => `<option value="${escapeHtml(name)}"></option>`).join("");
+
+  // تعبئة قائمة ملفات مجلد الواجبات (driveAssignments) للاختيار المباشر كمرفق
+  const driveSelect = document.getElementById("taskDriveFileSelect");
+  const currentDriveValue = driveSelect.value;
+  driveSelect.innerHTML =
+    `<option value="">-- اختر ملفاً من مجلد الواجبات في Drive (اختياري) --</option>` +
+    driveAssignmentsData
+      .map(f => {
+        const url = f.previewUrl || f.downloadUrl || "";
+        return `<option value="${escapeHtml(url)}" data-file-name="${escapeHtml(f.name)}">${escapeHtml(f.name)}</option>`;
+      })
+      .join("");
+  const hasOption = Array.from(driveSelect.options).some(opt => opt.value === currentDriveValue);
+  driveSelect.value = hasOption ? currentDriveValue : "";
+
   const select = document.getElementById("adminScheduleDaySelect");
   select.innerHTML = DAYS_ORDER.map(d => `<option value="${d.key}">${escapeHtml(d.label)}</option>`).join("");
   select.value = activeDayKey;
 
+  renderAdminTasksList();
   renderAdminDayLectures();
   refreshExportBox();
+}
+
+function renderAdminTasksList() {
+  const listEl = document.getElementById("adminTasksList");
+  const tasks = Array.isArray(portalData.tasks) ? portalData.tasks : [];
+
+  if (tasks.length === 0) {
+    listEl.innerHTML = `<p style="font-size: 0.84rem; color: var(--text-light); padding: 6px 0;">لا توجد واجبات أو اختبارات مضافة حالياً.</p>`;
+    return;
+  }
+
+  listEl.innerHTML = tasks.map((task, idx) => `
+    <div class="admin-lecture-row">
+      <div style="min-width: 0;">
+        <div style="font-weight: 800; font-size: 0.88rem; color: var(--navy-900);">
+          [${escapeHtml(task.type)}] ${escapeHtml(task.title)}
+        </div>
+        <div style="font-size: 0.77rem; color: var(--text-muted);">
+          ${escapeHtml(task.subject)} • التسليم: ${escapeHtml(task.due)}
+        </div>
+      </div>
+      <div style="display: flex; gap: 6px; flex-shrink: 0;">
+        <button type="button" class="btn btn-soft btn-sm" data-admin-task-edit="${idx}">تعديل</button>
+        <button type="button" class="btn btn-danger-soft btn-sm" data-admin-task-delete="${idx}">حذف</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function resetAdminTaskForm() {
+  document.getElementById("editTaskIndex").value = "-1";
+  document.getElementById("adminTaskFormTitle").textContent = "إضافة واجب / اختبار جديد";
+  document.getElementById("saveTaskBtn").textContent = "نشر الواجب للجميع";
+  document.getElementById("cancelEditTaskBtn").classList.add("hidden");
+  document.getElementById("adminTaskForm").reset();
 }
 
 function renderAdminDayLectures() {
@@ -1030,17 +1309,28 @@ function resetAdminLectureForm() {
 function refreshExportBox() {
   const backupData = {
     notice: portalData.announcement,
+    tasks: portalData.tasks,
     schedule: portalData.schedule
   };
   document.getElementById("exportJsonBox").textContent = JSON.stringify(backupData, null, 2);
 }
 
 /* =========================================================================
-   12. ربط الأحداث وتشغيل التطبيق
-   ========================================================================= */
+   14. ربط الأحداث وتشغيل التطبيق
+   ========================================================= */
 function initEvents() {
   document.getElementById("refreshFilesBtn").addEventListener("click", () => fetchPortalData({ forceRefresh: true }));
   document.getElementById("headerRefreshBtn").addEventListener("click", () => fetchPortalData({ forceRefresh: true }));
+
+  document.querySelectorAll("[data-view-tab]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const targetTab = btn.dataset.viewTab;
+      switchMainViewTab(targetTab);
+      if (targetTab === "tasks") {
+        markFilesAsSeen(driveAssignmentsData);
+      }
+    });
+  });
 
   const searchInput = document.getElementById("searchInput");
   searchInput.addEventListener("input", () => {
@@ -1081,6 +1371,20 @@ function initEvents() {
   document.getElementById("courseLoadMoreBtn").addEventListener("click", () => {
     sectionVisibleLimit += FILES_PAGE_SIZE;
     renderCourseModalBody();
+  });
+
+  document.getElementById("taskFilterTabs").addEventListener("click", e => {
+    const btn = e.target.closest("[data-task-filter]");
+    if (!btn) return;
+    document.querySelectorAll("[data-task-filter]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeTaskFilter = btn.dataset.taskFilter;
+    renderTasksSection();
+  });
+
+  document.getElementById("driveAssignmentsLoadMoreBtn").addEventListener("click", () => {
+    driveAssignmentsVisibleLimit += FILES_PAGE_SIZE;
+    renderDriveAssignmentsList();
   });
 
   document.addEventListener("click", e => {
@@ -1128,14 +1432,6 @@ function initEvents() {
     renderSchedule();
   });
 
-  document.querySelectorAll("[data-quick-nav]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-quick-nav]").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-    });
-  });
-
-  // تسجيل دخول لوحة الإدارة
   document.getElementById("openAdminLoginBtn").addEventListener("click", () => {
     document.getElementById("adminPinInput").value = "";
     document.getElementById("adminLoginError").classList.add("hidden");
@@ -1163,13 +1459,14 @@ function initEvents() {
       btn.classList.add("active");
       const target = btn.dataset.adminTab;
       document.getElementById("adminTabAnnouncement").classList.toggle("hidden", target !== "announcement");
+      document.getElementById("adminTabTasks").classList.toggle("hidden", target !== "tasks");
       document.getElementById("adminTabSchedule").classList.toggle("hidden", target !== "schedule");
       document.getElementById("adminTabBackup").classList.toggle("hidden", target !== "backup");
       if (target === "backup") refreshExportBox();
     });
   });
 
-  // حفظ التنبيه العاجل وإرساله عبر POST
+  // 1) حفظ التنبيه العاجل عبر POST
   document.getElementById("saveAnnouncementBtn").addEventListener("click", async () => {
     if (isAdminSyncing) return;
     const prevSnapshot = cloneObj(portalData);
@@ -1177,15 +1474,117 @@ function initEvents() {
     portalData.announcement.visible = document.getElementById("adminAnnouncementVisible").checked;
     portalData.announcement.text = document.getElementById("adminAnnouncementText").value.trim();
 
-    await syncAdminUpdatesToServer(prevSnapshot, "تم تحديث التنبيه العاجل لجميع الطلاب بنجاح");
+    await syncAdminUpdatesToServer(
+      prevSnapshot,
+      {
+        pin: sessionAdminPin,
+        notice: {
+          visible: portalData.announcement.visible,
+          enabled: portalData.announcement.visible,
+          text: portalData.announcement.text
+        },
+        schedule: portalData.schedule
+      },
+      "تم تحديث التنبيه العاجل لجميع الطلاب بنجاح"
+    );
   });
 
+  // 2) إدارة واجبات الأسبوع ومزامنة tasks عبر POST ({ pin, tasks })
+  document.getElementById("taskDriveFileSelect").addEventListener("change", e => {
+    const selectedOption = e.target.selectedOptions[0];
+    const url = e.target.value;
+    if (url) {
+      document.getElementById("taskAttachmentUrlInput").value = url;
+      const nameInput = document.getElementById("taskAttachmentNameInput");
+      if (!nameInput.value.trim() && selectedOption?.dataset.fileName) {
+        nameInput.value = selectedOption.dataset.fileName;
+      }
+    }
+  });
+
+  document.getElementById("adminTasksList").addEventListener("click", async e => {
+    if (isAdminSyncing) return;
+    const editBtn = e.target.closest("[data-admin-task-edit]");
+    const delBtn = e.target.closest("[data-admin-task-delete]");
+
+    if (editBtn) {
+      const idx = Number(editBtn.dataset.adminTaskEdit);
+      const task = portalData.tasks[idx];
+      if (!task) return;
+
+      document.getElementById("editTaskIndex").value = idx;
+      document.getElementById("taskSubjectInput").value = task.subject;
+      document.getElementById("taskTypeSelect").value = task.type || "واجب";
+      document.getElementById("taskTitleInput").value = task.title;
+      document.getElementById("taskDueInput").value = task.due;
+      document.getElementById("taskDescInput").value = task.description;
+      document.getElementById("taskAttachmentUrlInput").value = task.attachmentUrl || "";
+      document.getElementById("taskAttachmentNameInput").value = task.attachmentName || "";
+
+      const driveSelect = document.getElementById("taskDriveFileSelect");
+      const hasMatchingOption = Array.from(driveSelect.options).some(opt => opt.value === (task.attachmentUrl || ""));
+      driveSelect.value = hasMatchingOption ? (task.attachmentUrl || "") : "";
+
+      document.getElementById("adminTaskFormTitle").textContent = "تعديل الواجب / الاختبار";
+      document.getElementById("saveTaskBtn").textContent = "حفظ التعديل ونشره للجميع";
+      document.getElementById("cancelEditTaskBtn").classList.remove("hidden");
+    } else if (delBtn) {
+      const idx = Number(delBtn.dataset.adminTaskDelete);
+      const prevSnapshot = cloneObj(portalData);
+      portalData.tasks.splice(idx, 1);
+
+      await syncAdminUpdatesToServer(
+        prevSnapshot,
+        { pin: sessionAdminPin, tasks: portalData.tasks },
+        "تم حذف الواجب وتحديث القائمة للجميع"
+      );
+    }
+  });
+
+  document.getElementById("cancelEditTaskBtn").addEventListener("click", resetAdminTaskForm);
+
+  document.getElementById("adminTaskForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    if (isAdminSyncing) return;
+
+    const prevSnapshot = cloneObj(portalData);
+    if (!Array.isArray(portalData.tasks)) portalData.tasks = [];
+
+    const editIdx = Number(document.getElementById("editTaskIndex").value);
+    const isEditing = editIdx >= 0 && portalData.tasks[editIdx];
+
+    const taskObj = {
+      id: isEditing ? portalData.tasks[editIdx].id : `task_${Date.now()}`,
+      subject: document.getElementById("taskSubjectInput").value.trim(),
+      type: document.getElementById("taskTypeSelect").value,
+      title: document.getElementById("taskTitleInput").value.trim(),
+      due: document.getElementById("taskDueInput").value.trim(),
+      description: document.getElementById("taskDescInput").value.trim(),
+      attachmentUrl: document.getElementById("taskAttachmentUrlInput").value.trim(),
+      attachmentName: document.getElementById("taskAttachmentNameInput").value.trim()
+    };
+
+    if (isEditing) {
+      portalData.tasks[editIdx] = taskObj;
+    } else {
+      portalData.tasks.unshift(taskObj);
+    }
+
+    const ok = await syncAdminUpdatesToServer(
+      prevSnapshot,
+      { pin: sessionAdminPin, tasks: portalData.tasks },
+      isEditing ? "تم تعديل الواجب ونشره للجميع" : "تم نشر الواجب لجميع الطلاب بنجاح"
+    );
+
+    if (ok) resetAdminTaskForm();
+  });
+
+  // 3) إدارة الجدول الأسبوعي عبر POST
   document.getElementById("adminScheduleDaySelect").addEventListener("change", () => {
     resetAdminLectureForm();
     renderAdminDayLectures();
   });
 
-  // تعديل أو حذف حصة من الجدول وإرسال التعديل عبر POST
   document.getElementById("adminDayLecturesList").addEventListener("click", async e => {
     if (isAdminSyncing) return;
     const dayKey = document.getElementById("adminScheduleDaySelect").value;
@@ -1208,13 +1607,25 @@ function initEvents() {
       const idx = Number(delBtn.dataset.adminDelete);
       const prevSnapshot = cloneObj(portalData);
       portalData.schedule[dayKey].splice(idx, 1);
-      await syncAdminUpdatesToServer(prevSnapshot, "تم حذف الحصة وتحديث الجدول للجميع");
+
+      await syncAdminUpdatesToServer(
+        prevSnapshot,
+        {
+          pin: sessionAdminPin,
+          notice: {
+            visible: portalData.announcement.visible,
+            enabled: portalData.announcement.visible,
+            text: portalData.announcement.text
+          },
+          schedule: portalData.schedule
+        },
+        "تم حذف الحصة وتحديث الجدول للجميع"
+      );
     }
   });
 
   document.getElementById("cancelEditLectureBtn").addEventListener("click", resetAdminLectureForm);
 
-  // إضافة أو حفظ تعديل حصة وإرساله عبر POST
   document.getElementById("adminLectureForm").addEventListener("submit", async e => {
     e.preventDefault();
     if (isAdminSyncing) return;
@@ -1244,15 +1655,22 @@ function initEvents() {
 
     const ok = await syncAdminUpdatesToServer(
       prevSnapshot,
+      {
+        pin: sessionAdminPin,
+        notice: {
+          visible: portalData.announcement.visible,
+          enabled: portalData.announcement.visible,
+          text: portalData.announcement.text
+        },
+        schedule: portalData.schedule
+      },
       isEditing ? "تم تعديل الحصة ونشرها للجميع" : "تمت إضافة الحصة ونشرها للجميع"
     );
 
-    if (ok) {
-      resetAdminLectureForm();
-    }
+    if (ok) resetAdminLectureForm();
   });
 
-  // التصدير والاستيراد الاحتياطي
+  // 4) التصدير والاستيراد الاحتياطي
   document.getElementById("copyConfigBtn").addEventListener("click", () => {
     copyText(document.getElementById("exportJsonBox").textContent);
   });
@@ -1260,6 +1678,7 @@ function initEvents() {
   document.getElementById("downloadConfigBtn").addEventListener("click", () => {
     const backupData = {
       notice: portalData.announcement,
+      tasks: portalData.tasks,
       schedule: portalData.schedule
     };
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json;charset=utf-8" });
@@ -1283,16 +1702,31 @@ function initEvents() {
         const parsed = JSON.parse(ev.target.result);
         const importedNotice = normalizeNotice(parsed.notice || parsed.announcement);
         const importedSchedule = normalizeSchedule(parsed.schedule);
+        const importedTasks = normalizeTasks(parsed.tasks);
 
-        if (!importedNotice && !importedSchedule) {
+        if (!importedNotice && !importedSchedule && !importedTasks) {
           throw new Error("صيغة الملف غير متوافقة");
         }
 
         if (importedNotice) portalData.announcement = importedNotice;
         if (importedSchedule) portalData.schedule = importedSchedule;
+        if (importedTasks !== null) portalData.tasks = importedTasks;
 
         populateAdminPanel();
-        await syncAdminUpdatesToServer(prevSnapshot, "تم استيراد البيانات ونشرها لجميع الطلاب");
+        await syncAdminUpdatesToServer(
+          prevSnapshot,
+          {
+            pin: sessionAdminPin,
+            notice: {
+              visible: portalData.announcement.visible,
+              enabled: portalData.announcement.visible,
+              text: portalData.announcement.text
+            },
+            schedule: portalData.schedule,
+            tasks: portalData.tasks
+          },
+          "تم استيراد البيانات ونشرها لجميع الطلاب"
+        );
       } catch (err) {
         portalData = prevSnapshot;
         showToast("ملف JSON غير صالح", "error");
@@ -1306,9 +1740,10 @@ function initEvents() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initEvents();
+  switchMainViewTab("archive");
+  renderTasksSection();
   renderSchedule();
   fetchPortalData({ forceRefresh: false });
 
-  // إخفاء شاشة البداية سريعاً إذا تأخرت الشبكة لإظهار بطاقات Skeleton
   setTimeout(hideSplashScreen, 1200);
 });
