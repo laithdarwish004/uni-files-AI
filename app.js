@@ -1,16 +1,15 @@
 /* =========================================================================
-   1. الإعدادات الأساسية والبيانات الافتراضية
+   1. رابط الـ API والإعدادات الأساسية (يمكنك التعديل هنا بسهولة مستقبلاً)
    ========================================================================= */
-const DRIVE_API_URL =
-  "https://script.google.com/macros/s/AKfycbx4IBzA2B-op7FNC0P7Bo1oVecBlLqGfBMH0g4JifOrHGjOyUsYbqhXuxbO_f3hy1vkMA/exec";
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbyI4a8tf5gBnFpBiL92vKTFvT8vX9MEBKT7IBA8GllDjG3ldpI9EhFQWyyaPVPEvnHPGA/exec";
 
-const ADMIN_PIN = "1011100010"; // يمكنك تغيير رمز دخول الأدمن من هنا
-const FILES_PAGE_SIZE = 12; // عدد الملفات المعروضة في كل دفعة لتسريع الهواتف
+const ADMIN_PIN = "2026"; // الرمز السري الافتراضي للإدارة
+const FILES_PAGE_SIZE = 12; // التحميل التدريجي للملفات لحماية أداء الجوال
 
 const STORAGE_KEYS = {
-  DRIVE_CACHE: "ai_l1_drive_cache_v2",
-  SEEN_FILES: "ai_l1_seen_file_ids_v2",
-  PORTAL_CONFIG: "ai_l1_portal_config_v2"
+  PORTAL_CACHE: "ai_l1_portal_cloud_cache_v3",
+  SEEN_FILES: "ai_l1_seen_file_ids_v3"
 };
 
 const DAYS_ORDER = [
@@ -24,8 +23,8 @@ const DAYS_ORDER = [
 
 const DEFAULT_PORTAL_DATA = {
   announcement: {
-    visible: true,
-    text: "مرحباً بكم في بوابة دفعة الذكاء الاصطناعي (المستوى الأول). يرجى متابعة الملازم الجديدة والالتزام بمواعيد المحاضرات والمعامل."
+    visible: false,
+    text: ""
   },
   schedule: {
     saturday: [
@@ -55,34 +54,31 @@ const DEFAULT_PORTAL_DATA = {
 };
 
 /*
- * بنية مرنة مجهزة لإضافة قسم خاص لتسجيلات المحاضرات مستقبلاً بسهولة:
- * فعّل enabled: true وأضف الروابط، أو أضف مجلداً باسم "تسجيلات" في Google Drive وسيتم دعمه تلقائياً.
+ * بنية مرنة مجهزة للتوسع المستقبلي (مثل قسم تسجيلات المحاضرات)
  */
 const FUTURE_RECORDINGS_CONFIG = {
   enabled: false,
   title: "تسجيلات المحاضرات",
   subtitle: "روابط التسجيلات الصوتية والمرئية للمحاضرات",
-  items: [
-    // مثال جاهز للاستخدام مستقبلاً:
-    // { title: "المحاضرة الأولى - مقدمة في البرمجة", course: "Computer programming", url: "https://..." }
-  ]
+  items: []
 };
 
 /* =========================================================================
-   2. حالة التطبيق (State)
-   ========================================================= */
+   2. حالة التطبيق (Application State)
+   ========================================================================= */
 let coursesData = [];
-let portalData = loadPortalData();
+let portalData = cloneObj(DEFAULT_PORTAL_DATA);
 let activeDayKey = detectTodayKey();
 let currentModalCourse = null;
 let currentSectionIndex = 0;
 
-// متغيرات التحميل التدريجي (Progressive Rendering)
 let sectionVisibleLimit = FILES_PAGE_SIZE;
 let searchVisibleLimit = FILES_PAGE_SIZE;
 
-// تتبع الملفات الجديدة خلال الجلسة الحالية
 let sessionNewFileIds = new Set();
+let sessionAdminPin = "";
+let isAdminSyncing = false;
+let lastShownUrgentSignature = "";
 
 /* =========================================================================
    3. طبقة التخزين الآمنة (Safari Private Mode & Storage Protection)
@@ -105,8 +101,8 @@ function safeStorageSet(key, value) {
 }
 
 /* =========================================================================
-   4. أدوات مساعدة عامة
-   ========================================================= */
+   4. دوال مساعدة عامة
+   ========================================================================= */
 function escapeHtml(str) {
   if (str === null || str === undefined) return "";
   return String(str)
@@ -132,7 +128,7 @@ function showToast(message, type = "default") {
     toast.style.opacity = "0";
     toast.style.transition = "opacity 0.2s";
     setTimeout(() => toast.remove(), 220);
-  }, 2400);
+  }, 2600);
 }
 
 function formatFileSize(sizeKB) {
@@ -191,7 +187,7 @@ function hideSplashScreen() {
 
 /* =========================================================================
    5. تتبع الملفات الجديدة (شارة "جديد")
-   ========================================================= */
+   ========================================================================= */
 function extractAllFileIds(courses) {
   const ids = [];
   (courses || []).forEach(course => {
@@ -206,7 +202,7 @@ function extractAllFileIds(courses) {
 
 function loadSeenFileIds() {
   const raw = safeStorageGet(STORAGE_KEYS.SEEN_FILES);
-  if (!raw) return null; // أول زيارة على الإطلاق
+  if (!raw) return null;
   try {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? new Set(parsed.map(String)) : null;
@@ -224,7 +220,6 @@ function detectNewFilesFromData(courses) {
   const storedSeen = loadSeenFileIds();
 
   if (storedSeen === null) {
-    // في الزيارة الأولى يتم حفظ الملفات الحالية كخط أساس حتى لا تظهر كل الملفات القديمة كـ "جديد"
     saveSeenFileIds(new Set(currentIds));
     return;
   }
@@ -251,9 +246,7 @@ function markSectionFilesAsSeen(files) {
     }
   });
 
-  if (changed) {
-    saveSeenFileIds(storedSeen);
-  }
+  if (changed) saveSeenFileIds(storedSeen);
 }
 
 function countCourseNewFiles(course) {
@@ -276,42 +269,104 @@ function countCourseFiles(course) {
 }
 
 /* =========================================================================
-   6. التنبيه العاجل (Modal عند الدخول + الشريط العلوي) & الجدول
-   ========================================================= */
-function loadPortalData() {
-  const raw = safeStorageGet(STORAGE_KEYS.PORTAL_CONFIG);
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw);
-      if (parsed && parsed.announcement && parsed.schedule) {
-        return parsed;
-      }
-    } catch (err) {
-      // تجاهل والرجوع للافتراضي
-    }
+   6. تطبيع وعرض التنبيه العاجل والجدول الأسبوعي من الخادم
+   ========================================================================= */
+function normalizeNotice(rawNotice) {
+  if (!rawNotice || typeof rawNotice !== "object") return null;
+  return {
+    visible: Boolean(rawNotice.visible ?? rawNotice.enabled ?? rawNotice.active ?? false),
+    text: String(rawNotice.text ?? rawNotice.message ?? "").trim()
+  };
+}
+
+function normalizeSchedule(rawSchedule) {
+  if (!rawSchedule || typeof rawSchedule !== "object" || Array.isArray(rawSchedule)) {
+    return null;
   }
-  return cloneObj(DEFAULT_PORTAL_DATA);
+  const arabicDayMap = {
+    "السبت": "saturday",
+    "الأحد": "sunday",
+    "الاحد": "sunday",
+    "الاثنين": "monday",
+    "الإثنين": "monday",
+    "الثلاثاء": "tuesday",
+    "الأربعاء": "wednesday",
+    "الاربعاء": "wednesday",
+    "الخميس": "thursday"
+  };
+
+  const normalized = {};
+  DAYS_ORDER.forEach(d => {
+    normalized[d.key] = [];
+  });
+
+  let hasKnownDayKey = false;
+  Object.keys(rawSchedule).forEach(rawKey => {
+    const key = arabicDayMap[rawKey] || String(rawKey).toLowerCase().trim();
+    if (Object.prototype.hasOwnProperty.call(normalized, key)) {
+      hasKnownDayKey = true;
+      const dayItems = Array.isArray(rawSchedule[rawKey]) ? rawSchedule[rawKey] : [];
+      normalized[key] = dayItems.map(item => ({
+        subject: String(item.subject || item.name || ""),
+        time: String(item.time || ""),
+        room: String(item.room || item.hall || ""),
+        doctor: String(item.doctor || item.instructor || "")
+      }));
+    }
+  });
+
+  return hasKnownDayKey ? normalized : null;
 }
 
-function savePortalData() {
-  safeStorageSet(STORAGE_KEYS.PORTAL_CONFIG, JSON.stringify(portalData));
+function applyApiPayload(payload, { isInitialOrManual = false } = {}) {
+  // التوافق مع الصيغة الجديدة { subjects, notice, schedule } أو صيغة المصفوفة المباشرة
+  let subjects = [];
+  let serverNotice = null;
+  let serverSchedule = null;
+
+  if (Array.isArray(payload)) {
+    subjects = payload;
+  } else if (payload && typeof payload === "object") {
+    subjects = Array.isArray(payload.subjects)
+      ? payload.subjects
+      : (Array.isArray(payload.courses) ? payload.courses : []);
+    serverNotice = normalizeNotice(payload.notice);
+    serverSchedule = normalizeSchedule(payload.schedule);
+  }
+
+  coursesData = subjects;
+  if (serverNotice) {
+    portalData.announcement = serverNotice;
+  }
+  if (serverSchedule) {
+    portalData.schedule = serverSchedule;
+  }
+
+  detectNewFilesFromData(coursesData);
+  renderArchive();
+  renderSchedule();
+  renderAnnouncementUI({ openModalIfChanged: isInitialOrManual });
 }
 
-function renderAnnouncementUI({ openModalOnActive = false } = {}) {
+function renderAnnouncementUI({ openModalIfChanged = false } = {}) {
   const banner = document.getElementById("urgentBanner");
   const bannerText = document.getElementById("urgentBannerText");
   const modalText = document.getElementById("urgentModalText");
   const { visible, text } = portalData.announcement;
-  const hasText = Boolean(visible && text && text.trim());
+  const hasActiveNotice = Boolean(visible && text && text.trim());
 
-  if (hasText) {
+  if (hasActiveNotice) {
     banner.classList.remove("hidden");
     bannerText.textContent = text;
     modalText.textContent = text;
-    if (openModalOnActive) {
+
+    const signature = `1|${text}`;
+    if (openModalIfChanged && signature !== lastShownUrgentSignature) {
+      lastShownUrgentSignature = signature;
       openModal("urgentModal");
     }
   } else {
+    lastShownUrgentSignature = "";
     banner.classList.add("hidden");
     closeModal("urgentModal");
   }
@@ -375,8 +430,8 @@ function renderSchedule() {
 }
 
 /* =========================================================================
-   7. جلب بيانات Google Drive (كاش فوري + تحديث بالخلفية + Skeleton)
-   ========================================================= */
+   7. جلب البيانات والمزامنة عبر GET (كاش فوري + تحديث بالخلفية)
+   ========================================================================= */
 function renderLoadingSkeleton() {
   const container = document.getElementById("coursesContainer");
   container.innerHTML = Array.from({ length: 6 }).map(() => `
@@ -388,7 +443,7 @@ function renderLoadingSkeleton() {
       </div>
     </div>
   `).join("");
-  document.getElementById("archiveStatsText").textContent = "جاري جلب الملازم من Google Drive...";
+  document.getElementById("archiveStatsText").textContent = "جاري جلب البيانات من Google Drive...";
 }
 
 function setSyncStatus(text, spinning = false) {
@@ -399,26 +454,38 @@ function setSyncStatus(text, spinning = false) {
     if (b) b.disabled = spinning;
   });
   [document.getElementById("refreshFilesIcon"), document.getElementById("headerRefreshIcon")].forEach(ic => {
-    if (!ic) return;
-    ic.classList.toggle("spin", spinning);
+    if (ic) ic.classList.toggle("spin", spinning);
   });
 }
 
-function loadDriveCache() {
-  const raw = safeStorageGet(STORAGE_KEYS.DRIVE_CACHE);
+function loadPortalCache() {
+  const raw = safeStorageGet(STORAGE_KEYS.PORTAL_CACHE);
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw);
-    return parsed && Array.isArray(parsed.data) ? parsed : null;
+    return parsed && parsed.payload ? parsed : null;
   } catch (err) {
     return null;
   }
 }
 
-function saveDriveCache(data) {
+function savePortalCache(payload) {
   const timestamp = Date.now();
-  safeStorageSet(STORAGE_KEYS.DRIVE_CACHE, JSON.stringify({ timestamp, data }));
+  safeStorageSet(STORAGE_KEYS.PORTAL_CACHE, JSON.stringify({ timestamp, payload }));
   return timestamp;
+}
+
+function updateCachedPortalFields() {
+  const existing = loadPortalCache();
+  const baseSubjects = Array.isArray(existing?.payload)
+    ? existing.payload
+    : (existing?.payload?.subjects || coursesData);
+
+  savePortalCache({
+    subjects: baseSubjects,
+    notice: portalData.announcement,
+    schedule: portalData.schedule
+  });
 }
 
 function formatSyncTime(ts) {
@@ -426,16 +493,14 @@ function formatSyncTime(ts) {
   return `آخر تحديث: ${new Date(ts).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })}`;
 }
 
-async function fetchDriveData({ forceRefresh = false } = {}) {
-  const cached = loadDriveCache();
+async function fetchPortalData({ forceRefresh = false } = {}) {
+  const cached = loadPortalCache();
 
-  // عرض فوري للبيانات المحفوظة ثم التحديث في الخلفية
-  if (!forceRefresh && cached && cached.data.length > 0) {
-    coursesData = cached.data;
-    detectNewFilesFromData(coursesData);
-    renderArchive();
+  // عرض فوري للكاش عند الفتح ثم التحديث الصامت في الخلفية
+  if (!forceRefresh && cached) {
+    applyApiPayload(cached.payload, { isInitialOrManual: true });
     hideSplashScreen();
-    setSyncStatus(`${formatSyncTime(cached.timestamp)} • جاري التحقق...`, false);
+    setSyncStatus(`${formatSyncTime(cached.timestamp)} • جاري المزامنة...`, false);
     silentBackgroundSync();
     return;
   }
@@ -444,28 +509,23 @@ async function fetchDriveData({ forceRefresh = false } = {}) {
   setSyncStatus("جاري التحديث...", true);
 
   try {
-    const url = forceRefresh ? `${DRIVE_API_URL}?_=${Date.now()}` : DRIVE_API_URL;
+    const url = forceRefresh ? `${API_URL}?_=${Date.now()}` : API_URL;
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const json = await response.json();
-    if (!Array.isArray(json)) throw new Error("صيغة البيانات غير متوقعة");
-
-    coursesData = json;
-    detectNewFilesFromData(coursesData);
-    const ts = saveDriveCache(json);
-    renderArchive();
+    const ts = savePortalCache(json);
+    applyApiPayload(json, { isInitialOrManual: true });
     setSyncStatus(formatSyncTime(ts), false);
 
     if (forceRefresh) {
-      showToast("تم تحديث الملازم بنجاح", "success");
+      showToast("تم تحديث الملازم والجدول بنجاح", "success");
     }
   } catch (err) {
-    if (cached && cached.data.length > 0) {
-      coursesData = cached.data;
-      renderArchive();
+    if (cached) {
+      applyApiPayload(cached.payload, { isInitialOrManual: true });
       setSyncStatus("عرض النسخة المحفوظة", false);
-      showToast("تعذر التحديث الآن، تم عرض النسخة المحفوظة", "error");
+      showToast("تعذر الاتصال الآن، تم عرض النسخة المحفوظة", "error");
     } else {
       renderArchiveError();
       setSyncStatus("تعذر الاتصال", false);
@@ -477,18 +537,14 @@ async function fetchDriveData({ forceRefresh = false } = {}) {
 
 async function silentBackgroundSync() {
   try {
-    const response = await fetch(`${DRIVE_API_URL}?_=${Date.now()}`);
+    const response = await fetch(`${API_URL}?_=${Date.now()}`);
     if (!response.ok) return;
     const json = await response.json();
-    if (!Array.isArray(json)) return;
-
-    coursesData = json;
-    detectNewFilesFromData(coursesData);
-    const ts = saveDriveCache(json);
-    renderArchive();
+    const ts = savePortalCache(json);
+    applyApiPayload(json, { isInitialOrManual: true });
     setSyncStatus(formatSyncTime(ts), false);
   } catch (err) {
-    const cached = loadDriveCache();
+    const cached = loadPortalCache();
     setSyncStatus(cached ? formatSyncTime(cached.timestamp) : "", false);
   }
 }
@@ -497,9 +553,9 @@ function renderArchiveError() {
   const container = document.getElementById("coursesContainer");
   container.innerHTML = `
     <div class="empty-state" style="grid-column: 1 / -1;">
-      <h3>تعذر تحميل الملازم من Google Drive</h3>
-      <p>تأكد من اتصالك بالإنترنت ثم اضغط إعادة المحاولة.</p>
-      <button type="button" class="btn btn-primary btn-sm" onclick="fetchDriveData({ forceRefresh: true })">إعادة المحاولة</button>
+      <h3>تعذر تحميل البيانات من الخادم</h3>
+      <p>تحقق من اتصال الإنترنت ثم اضغط إعادة المحاولة.</p>
+      <button type="button" class="btn btn-primary btn-sm" onclick="fetchPortalData({ forceRefresh: true })">إعادة المحاولة</button>
     </div>
   `;
   document.getElementById("archiveStatsText").textContent = "تعذر الاتصال بالأرشيف";
@@ -581,7 +637,6 @@ function renderArchive() {
     }).join("");
   }
 
-  // عرض نتائج البحث في الملفات مع التحميل التدريجي
   if (query && matchingFiles.length > 0) {
     filesBox.classList.remove("hidden");
     const visibleItems = matchingFiles.slice(0, searchVisibleLimit);
@@ -696,7 +751,7 @@ function renderFileItemHtml(file, extraSubtitle = "") {
 }
 
 /* =========================================================================
-   9. نافذة المادة (أقسام تلقائية + تحميل تدريجي) والمعاينة الكسولة
+   9. نافذة المادة والمعاينة والنسخ
    ========================================================= */
 function openCourseModal(courseId) {
   const course = coursesData.find(c => String(c.id) === String(courseId));
@@ -760,10 +815,8 @@ function renderCourseModalBody() {
     return;
   }
 
-  // تسجيل ملفات هذا القسم كمقروءة للزيارات القادمة مع بقاء شارة "جديد" ظاهرة في هذه الجلسة
   markSectionFilesAsSeen(allFiles);
 
-  // تحميل تدريجي على دفعات لحماية أداء الهواتف
   const visibleFiles = allFiles.slice(0, sectionVisibleLimit);
   const remaining = allFiles.length - visibleFiles.length;
 
@@ -782,7 +835,6 @@ function openPreviewModal(previewUrl, fileName) {
     showToast("رابط المعاينة غير متوفر", "error");
     return;
   }
-  // تحميل iframe فقط عند الضغط على زر معاينة
   document.getElementById("previewModalTitle").textContent = fileName || "معاينة الملف";
   document.getElementById("previewExternalLink").href = previewUrl;
   document.getElementById("previewIframe").src = getEmbedPreviewUrl(previewUrl);
@@ -836,8 +888,101 @@ function closeModal(id) {
 }
 
 /* =========================================================================
-   11. لوحة تحكم الأدمن المبسطة
+   11. لوحة الإدارة والمزامنة عبر POST بصيغة text/plain
    ========================================================= */
+function setAdminSyncBanner(message = "", type = "info") {
+  const banner = document.getElementById("adminSyncBanner");
+  if (!banner) return;
+  if (!message) {
+    banner.classList.add("hidden");
+    banner.textContent = "";
+    return;
+  }
+  banner.className = `admin-sync-banner ${type}`;
+  banner.textContent = message;
+}
+
+function setAdminControlsDisabled(disabled) {
+  isAdminSyncing = disabled;
+  const ids = ["saveAnnouncementBtn", "saveLectureBtn", "adminScheduleDaySelect"];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = disabled;
+  });
+}
+
+async function syncAdminUpdatesToServer(previousSnapshot, successMessage) {
+  setAdminControlsDisabled(true);
+  setAdminSyncBanner("جاري حفظ التعديلات ومزامنتها لجميع الطلاب...", "info");
+
+  const payload = {
+    pin: sessionAdminPin,
+    notice: {
+      visible: Boolean(portalData.announcement.visible),
+      enabled: Boolean(portalData.announcement.visible),
+      text: String(portalData.announcement.text || "").trim()
+    },
+    schedule: portalData.schedule
+  };
+
+  try {
+    // إرسال POST بصيغة text/plain لتجنب مشاكل CORS Preflight في Google Apps Script
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(`فشل الاتصال بالخادم (${response.status})`);
+    }
+
+    const rawText = await response.text();
+    let resJson = null;
+    try {
+      resJson = JSON.parse(rawText);
+    } catch (_) {
+      resJson = null;
+    }
+
+    if (
+      resJson &&
+      (resJson.ok === false ||
+        resJson.success === false ||
+        resJson.status === "error" ||
+        Boolean(resJson.error))
+    ) {
+      throw new Error(resJson.error || resJson.message || "تم رفض التعديل من الخادم (تأكد من الرمز السري)");
+    }
+
+    // تحديث الكاش المحلي والواجهة فوراً بعد نجاح الحفظ في السحابة
+    updateCachedPortalFields();
+    renderAnnouncementUI({ openModalIfChanged: false });
+    renderSchedule();
+    renderAdminDayLectures();
+    refreshExportBox();
+
+    setAdminSyncBanner(successMessage, "success");
+    showToast(successMessage, "success");
+    return true;
+  } catch (err) {
+    // التراجع عن التعديل المحلي إذا فشل الحفظ في السحابة لضمان تطابق البيانات
+    portalData = previousSnapshot;
+    renderAnnouncementUI({ openModalIfChanged: false });
+    renderSchedule();
+    populateAdminPanel();
+
+    const errMsg = err && err.message ? err.message : "حدث خطأ أثناء الحفظ، حاول مرة أخرى";
+    setAdminSyncBanner(`خطأ: ${errMsg}`, "error");
+    showToast(errMsg, "error");
+    return false;
+  } finally {
+    setAdminControlsDisabled(false);
+  }
+}
+
 function populateAdminPanel() {
   document.getElementById("adminAnnouncementVisible").checked = Boolean(portalData.announcement.visible);
   document.getElementById("adminAnnouncementText").value = portalData.announcement.text || "";
@@ -877,23 +1022,26 @@ function renderAdminDayLectures() {
 function resetAdminLectureForm() {
   document.getElementById("editLectureIndex").value = "-1";
   document.getElementById("adminLectureFormTitle").textContent = "إضافة حصة جديدة";
-  document.getElementById("saveLectureBtn").textContent = "إضافة للجدول";
+  document.getElementById("saveLectureBtn").textContent = "حفظ وإضافة للجدول";
   document.getElementById("cancelEditLectureBtn").classList.add("hidden");
   document.getElementById("adminLectureForm").reset();
 }
 
 function refreshExportBox() {
-  document.getElementById("exportJsonBox").textContent = JSON.stringify(portalData, null, 2);
+  const backupData = {
+    notice: portalData.announcement,
+    schedule: portalData.schedule
+  };
+  document.getElementById("exportJsonBox").textContent = JSON.stringify(backupData, null, 2);
 }
 
 /* =========================================================================
-   12. ربط الأحداث والتشغيل
-   ========================================================= */
+   12. ربط الأحداث وتشغيل التطبيق
+   ========================================================================= */
 function initEvents() {
-  document.getElementById("refreshFilesBtn").addEventListener("click", () => fetchDriveData({ forceRefresh: true }));
-  document.getElementById("headerRefreshBtn").addEventListener("click", () => fetchDriveData({ forceRefresh: true }));
+  document.getElementById("refreshFilesBtn").addEventListener("click", () => fetchPortalData({ forceRefresh: true }));
+  document.getElementById("headerRefreshBtn").addEventListener("click", () => fetchPortalData({ forceRefresh: true }));
 
-  // البحث مع إعادة تعيين حد العرض التدريجي
   const searchInput = document.getElementById("searchInput");
   searchInput.addEventListener("input", () => {
     searchVisibleLimit = FILES_PAGE_SIZE;
@@ -907,7 +1055,6 @@ function initEvents() {
     searchInput.focus();
   });
 
-  // فتح المادة
   document.getElementById("coursesContainer").addEventListener("click", e => {
     const card = e.target.closest(".course-card");
     if (card) openCourseModal(card.dataset.courseId);
@@ -923,7 +1070,6 @@ function initEvents() {
     }
   });
 
-  // تبديل أقسام المادة وزر عرض المزيد
   document.getElementById("courseSectionTabs").addEventListener("click", e => {
     const btn = e.target.closest(".section-tab-btn");
     if (!btn) return;
@@ -937,7 +1083,6 @@ function initEvents() {
     renderCourseModalBody();
   });
 
-  // تفويض الأزرار الديناميكية (معاينة، نسخ، عرض المزيد للبحث)
   document.addEventListener("click", e => {
     if (e.target && e.target.id === "searchLoadMoreBtn") {
       searchVisibleLimit += FILES_PAGE_SIZE;
@@ -973,11 +1118,9 @@ function initEvents() {
     }
   });
 
-  // التنبيه العاجل (إغلاق المنبثق بموافق + إمكانية إعادة فتحه من الشريط)
   document.getElementById("ackUrgentBtn").addEventListener("click", () => closeModal("urgentModal"));
   document.getElementById("reopenUrgentModalBtn").addEventListener("click", () => openModal("urgentModal"));
 
-  // تبديل أيام الجدول
   document.getElementById("daysTabs").addEventListener("click", e => {
     const tab = e.target.closest(".day-tab");
     if (!tab) return;
@@ -985,7 +1128,6 @@ function initEvents() {
     renderSchedule();
   });
 
-  // تنقل الجوال السريع
   document.querySelectorAll("[data-quick-nav]").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll("[data-quick-nav]").forEach(b => b.classList.remove("active"));
@@ -993,7 +1135,7 @@ function initEvents() {
     });
   });
 
-  // لوحة الأدمن
+  // تسجيل دخول لوحة الإدارة
   document.getElementById("openAdminLoginBtn").addEventListener("click", () => {
     document.getElementById("adminPinInput").value = "";
     document.getElementById("adminLoginError").classList.add("hidden");
@@ -1004,13 +1146,15 @@ function initEvents() {
   document.getElementById("adminLoginForm").addEventListener("submit", e => {
     e.preventDefault();
     const pin = document.getElementById("adminPinInput").value.trim();
-    if (pin === ADMIN_PIN) {
-      closeModal("adminLoginModal");
-      populateAdminPanel();
-      openModal("adminPanelModal");
-    } else {
+    if (!pin || (ADMIN_PIN && pin !== ADMIN_PIN)) {
       document.getElementById("adminLoginError").classList.remove("hidden");
+      return;
     }
+    sessionAdminPin = pin;
+    setAdminSyncBanner("");
+    closeModal("adminLoginModal");
+    populateAdminPanel();
+    openModal("adminPanelModal");
   });
 
   document.querySelectorAll(".admin-tab-btn").forEach(btn => {
@@ -1025,13 +1169,15 @@ function initEvents() {
     });
   });
 
-  document.getElementById("saveAnnouncementBtn").addEventListener("click", () => {
+  // حفظ التنبيه العاجل وإرساله عبر POST
+  document.getElementById("saveAnnouncementBtn").addEventListener("click", async () => {
+    if (isAdminSyncing) return;
+    const prevSnapshot = cloneObj(portalData);
+
     portalData.announcement.visible = document.getElementById("adminAnnouncementVisible").checked;
     portalData.announcement.text = document.getElementById("adminAnnouncementText").value.trim();
-    savePortalData();
-    renderAnnouncementUI({ openModalOnActive: false });
-    refreshExportBox();
-    showToast("تم حفظ إعدادات التنبيه", "success");
+
+    await syncAdminUpdatesToServer(prevSnapshot, "تم تحديث التنبيه العاجل لجميع الطلاب بنجاح");
   });
 
   document.getElementById("adminScheduleDaySelect").addEventListener("change", () => {
@@ -1039,7 +1185,9 @@ function initEvents() {
     renderAdminDayLectures();
   });
 
-  document.getElementById("adminDayLecturesList").addEventListener("click", e => {
+  // تعديل أو حذف حصة من الجدول وإرسال التعديل عبر POST
+  document.getElementById("adminDayLecturesList").addEventListener("click", async e => {
+    if (isAdminSyncing) return;
     const dayKey = document.getElementById("adminScheduleDaySelect").value;
     const editBtn = e.target.closest("[data-admin-edit]");
     const delBtn = e.target.closest("[data-admin-delete]");
@@ -1054,24 +1202,26 @@ function initEvents() {
       document.getElementById("lecRoomInput").value = lec.room;
       document.getElementById("lecDoctorInput").value = lec.doctor;
       document.getElementById("adminLectureFormTitle").textContent = "تعديل الحصة";
-      document.getElementById("saveLectureBtn").textContent = "حفظ التعديل";
+      document.getElementById("saveLectureBtn").textContent = "حفظ التعديل للجميع";
       document.getElementById("cancelEditLectureBtn").classList.remove("hidden");
     } else if (delBtn) {
       const idx = Number(delBtn.dataset.adminDelete);
+      const prevSnapshot = cloneObj(portalData);
       portalData.schedule[dayKey].splice(idx, 1);
-      savePortalData();
-      renderAdminDayLectures();
-      renderSchedule();
-      refreshExportBox();
-      showToast("تم حذف الحصة", "success");
+      await syncAdminUpdatesToServer(prevSnapshot, "تم حذف الحصة وتحديث الجدول للجميع");
     }
   });
 
   document.getElementById("cancelEditLectureBtn").addEventListener("click", resetAdminLectureForm);
 
-  document.getElementById("adminLectureForm").addEventListener("submit", e => {
+  // إضافة أو حفظ تعديل حصة وإرساله عبر POST
+  document.getElementById("adminLectureForm").addEventListener("submit", async e => {
     e.preventDefault();
+    if (isAdminSyncing) return;
+
     const dayKey = document.getElementById("adminScheduleDaySelect").value;
+    const prevSnapshot = cloneObj(portalData);
+
     if (!Array.isArray(portalData.schedule[dayKey])) {
       portalData.schedule[dayKey] = [];
     }
@@ -1084,54 +1234,67 @@ function initEvents() {
     };
 
     const editIdx = Number(document.getElementById("editLectureIndex").value);
-    if (editIdx >= 0 && portalData.schedule[dayKey][editIdx]) {
+    const isEditing = editIdx >= 0 && portalData.schedule[dayKey][editIdx];
+
+    if (isEditing) {
       portalData.schedule[dayKey][editIdx] = lectureObj;
-      showToast("تم تعديل الحصة", "success");
     } else {
       portalData.schedule[dayKey].push(lectureObj);
-      showToast("تمت إضافة الحصة", "success");
     }
 
-    savePortalData();
-    resetAdminLectureForm();
-    renderAdminDayLectures();
-    renderSchedule();
-    refreshExportBox();
+    const ok = await syncAdminUpdatesToServer(
+      prevSnapshot,
+      isEditing ? "تم تعديل الحصة ونشرها للجميع" : "تمت إضافة الحصة ونشرها للجميع"
+    );
+
+    if (ok) {
+      resetAdminLectureForm();
+    }
   });
 
-  // التصدير والاستيراد
+  // التصدير والاستيراد الاحتياطي
   document.getElementById("copyConfigBtn").addEventListener("click", () => {
     copyText(document.getElementById("exportJsonBox").textContent);
   });
 
   document.getElementById("downloadConfigBtn").addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify(portalData, null, 2)], { type: "application/json;charset=utf-8" });
+    const backupData = {
+      notice: portalData.announcement,
+      schedule: portalData.schedule
+    };
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "ai-portal-settings.json";
+    a.download = "ai-portal-backup.json";
     a.click();
     URL.revokeObjectURL(url);
-    showToast("تم تصدير ملف الإعدادات", "success");
+    showToast("تم تصدير النسخة الاحتياطية", "success");
   });
 
   document.getElementById("importConfigFile").addEventListener("change", e => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file || isAdminSyncing) return;
+
     const reader = new FileReader();
-    reader.onload = ev => {
+    reader.onload = async ev => {
+      const prevSnapshot = cloneObj(portalData);
       try {
         const parsed = JSON.parse(ev.target.result);
-        if (!parsed || !parsed.announcement || !parsed.schedule) {
-          throw new Error("ملف غير صالح");
+        const importedNotice = normalizeNotice(parsed.notice || parsed.announcement);
+        const importedSchedule = normalizeSchedule(parsed.schedule);
+
+        if (!importedNotice && !importedSchedule) {
+          throw new Error("صيغة الملف غير متوافقة");
         }
-        portalData = parsed;
-        savePortalData();
-        renderAnnouncementUI({ openModalOnActive: false });
-        renderSchedule();
+
+        if (importedNotice) portalData.announcement = importedNotice;
+        if (importedSchedule) portalData.schedule = importedSchedule;
+
         populateAdminPanel();
-        showToast("تم استيراد الإعدادات بنجاح", "success");
+        await syncAdminUpdatesToServer(prevSnapshot, "تم استيراد البيانات ونشرها لجميع الطلاب");
       } catch (err) {
+        portalData = prevSnapshot;
         showToast("ملف JSON غير صالح", "error");
       } finally {
         e.target.value = "";
@@ -1139,23 +1302,13 @@ function initEvents() {
     };
     reader.readAsText(file);
   });
-
-  document.getElementById("resetDefaultDataBtn").addEventListener("click", () => {
-    portalData = cloneObj(DEFAULT_PORTAL_DATA);
-    savePortalData();
-    renderAnnouncementUI({ openModalOnActive: false });
-    renderSchedule();
-    populateAdminPanel();
-    showToast("تمت استعادة البيانات الافتراضية", "success");
-  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   initEvents();
   renderSchedule();
-  renderAnnouncementUI({ openModalOnActive: true });
-  fetchDriveData({ forceRefresh: false });
+  fetchPortalData({ forceRefresh: false });
 
-  // ضمان إخفاء شاشة البداية سريعاً حتى لو تأخر الشبكة لتظهر بطاقات Skeleton بوضوح
+  // إخفاء شاشة البداية سريعاً إذا تأخرت الشبكة لإظهار بطاقات Skeleton
   setTimeout(hideSplashScreen, 1200);
 });
