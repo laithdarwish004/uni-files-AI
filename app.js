@@ -1746,4 +1746,25 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchPortalData({ forceRefresh: false });
 
   setTimeout(hideSplashScreen, 1200);
-});
+}); // <-- لازم تقفل DOMContentLoaded هنا أولاً
+
+async function diagnoseConnectionError() {
+  let networkName = "غير معروفة";
+  try {
+    const res = await fetch("https://ipapi.co/json/", { cache: "no-store" });
+    if (res.ok) {
+      const info = await res.json();
+      networkName = info.org || info.asn || "غير معروفة";
+    }
+  } catch (e) {
+    // في حال تعذر الوصول لخدمة كشف الشبكة
+  }
+
+  const isYemenMobile = /yemen\s*mobile/i.test(networkName);
+  const message = isYemenMobile
+    ? `أنت متصل حالياً عبر شبكة (${networkName})، وهذه الشبكة تحظر خدمات جوجل حالياً. يرجى التبديل إلى واي فاي أو شبكة أخرى ثم الضغط على تحديث.`
+    : `تعذر الوصول إلى خادم البيانات (Google). شبكتك الحالية: (${networkName}). تأكد من الاتصال بالإنترنت أو جرّب شبكة أخرى.`;
+
+  showToast(message, "error");
+  return message;
+} // <-- هنا قوس معقوف فقط بدون ) و ;
